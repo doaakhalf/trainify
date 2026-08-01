@@ -35,12 +35,47 @@ export const softwareApplicationSchema = {
 export const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: content.faq.items.map((item) => ({
-    '@type': 'Question',
-    name: item.question,
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: item.answer,
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'كيف أختار المدرب المناسب؟',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'يمكنك تصفح ملفات المدربين، مراجعة تقييماتهم، والتواصل معهم مباشرة قبل الاشتراك.',
+      },
     },
-  })),
+    {
+      '@type': 'Question',
+      name: 'هل الدفع آمن؟',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'نعم، جميع المدفوعات تتم عبر بوابات دفع آمنة ومشفرة.',
+      },
+    },
+  ],
+};
+
+export const webPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Trainify - منصة تربط الرياضيين بالمدربين المحترفين',
+  description: 'اعثر على المدرب المناسب لهدفك من بين أفضل المدربين المعتمدين في الوطن العربي',
+  url: 'https://trainify.app',
+  inLanguage: 'ar',
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'Trainify',
+    url: 'https://trainify.app',
+  },
+  about: {
+    '@type': 'Thing',
+    name: 'Fitness Training',
+    description: 'Online fitness training and coaching platform',
+  },
+  primaryImageOfPage: {
+    '@type': 'ImageObject',
+    url: 'https://trainify.app/og-image.png',
+    width: 1200,
+    height: 630,
+  },
 };

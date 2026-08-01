@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Alexandria, Cairo } from 'next/font/google';
 import './globals.css';
 import { content } from '@/content/ar';
-import { organizationSchema, softwareApplicationSchema, faqSchema } from '@/lib/structured-data';
+import { organizationSchema, softwareApplicationSchema, faqSchema, webPageSchema } from '@/lib/structured-data';
 
 const alexandria = Alexandria({
   subsets: ['arabic'],
@@ -20,17 +20,36 @@ const cairo = Cairo({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://trainify.app'),
-  title: content.meta.title,
+  title: {
+    default: content.meta.title,
+    template: '%s | Trainify',
+  },
   description: content.meta.description,
   keywords: content.meta.keywords,
-  authors: [{ name: 'Trainify' }],
+  authors: [{ name: 'Trainify', url: 'https://trainify.app' }],
   creator: 'Trainify',
   publisher: 'Trainify',
+  applicationName: 'Trainify',
+  category: 'Health & Fitness',
+  classification: 'Fitness Training Platform',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
+  icons: {
+    icon: [
+      { url: '/icon.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { rel: 'mask-icon', url: '/icon.png', color: '#F97316' },
+    ],
+  },
+  manifest: '/manifest.json',
   openGraph: {
     type: 'website',
     locale: 'ar_SA',
@@ -43,7 +62,8 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Trainify',
+        alt: 'Trainify - منصة تربط الرياضيين بالمدربين المحترفين',
+        type: 'image/png',
       },
     ],
   },
@@ -52,13 +72,17 @@ export const metadata: Metadata = {
     title: content.meta.title,
     description: content.meta.description,
     images: ['/og-image.png'],
+    creator: '@trainify',
+    site: '@trainify',
   },
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
+      noimageindex: false,
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1,
@@ -66,7 +90,31 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: 'https://trainify.app',
+    languages: {
+      'ar-SA': 'https://trainify.app',
+      'ar': 'https://trainify.app',
+    },
   },
+  verification: {
+    google: 'your-google-verification-code',
+    yandex: 'your-yandex-verification-code',
+  },
+  appleWebApp: {
+    capable: true,
+    title: 'Trainify',
+    statusBarStyle: 'black-translucent',
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F97316' },
+    { media: '(prefers-color-scheme: dark)', color: '#F97316' },
+  ],
 };
 
 export default function RootLayout({
@@ -88,6 +136,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
         />
       </head>
       <body className="font-sans antialiased bg-background text-text-primary">
