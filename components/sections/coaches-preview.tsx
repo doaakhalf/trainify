@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { content } from '@/content/ar';
 import { CoachCard } from '@/components/ui/coach-card';
@@ -15,31 +15,33 @@ interface CoachesPreviewProps {
 
 export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPreviewProps) {
   // Use API coaches if available, otherwise fallback to content
-  const initialCoaches = apiCoaches && apiCoaches.length > 0 
-    ? apiCoaches.map(coach => {
-        // Fix image URL - prepend API base URL if relative path
-        let imageUrl = '/placeholder-coach.jpg';
-        if (coach.profileImage) {
-          if (coach.profileImage.startsWith('http')) {
-            imageUrl = coach.profileImage;
-          } else {
-            imageUrl = `https://promax-node-production-7c35.up.railway.app/${coach.profileImage}`;
+  const initialCoaches = useMemo(() => {
+    return apiCoaches && apiCoaches.length > 0 
+      ? apiCoaches.map(coach => {
+          // Fix image URL - prepend API base URL if relative path
+          let imageUrl = '/placeholder-coach.jpg';
+          if (coach.profileImage) {
+            if (coach.profileImage.startsWith('http')) {
+              imageUrl = coach.profileImage;
+            } else {
+              imageUrl = `https://promax-node-production-7c35.up.railway.app/${coach.profileImage}`;
+            }
           }
-        }
-        
-        return {
-          id: coach._id,
-          name: coach.name,
-          image: imageUrl,
-          specialty: coach.specialization?.[0] || 'مدرب معتمد',
-          rating: coach.rating || 4.8,
-          experience: coach.experience || 5,
-          price: coach.price || 500,
-          goals: coach.specialization || [],
-          subscribers: coach.reviewCount || 0,
-        };
-      })
-    : content.coaches.items;
+          
+          return {
+            id: coach._id,
+            name: coach.name,
+            image: imageUrl,
+            headline: coach.headline || 'مدرب معتمد',
+            rating: coach.rating || 4.8,
+            experience: coach.experience || 5,
+            price: coach.price || 500,
+            goals: coach.specialization || [],
+            subscribers: coach.reviewCount || 0,
+          };
+        })
+      : content.coaches.items;
+  }, [apiCoaches]);
 
   const [filteredCoaches, setFilteredCoaches] = useState(initialCoaches);
 
@@ -85,7 +87,7 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
             >
               <CoachCard
                 name={coach.name}
-                specialty={coach.specialty}
+                headline={coach.headline}
                 rating={coach.rating}
                 subscribers={coach.subscribers}
                 experience={coach.experience}

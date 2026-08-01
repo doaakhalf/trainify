@@ -5,6 +5,7 @@ export interface Coach {
   phone: string;
   profileImage?: string;
   bio?: string;
+  headline?: string;
   specialization?: string[];
   experience?: number;
   rating?: number;
@@ -30,8 +31,13 @@ export async function getActiveCoaches(): Promise<Coach[]> {
 
     const data = await response.json();
     
+    console.log('API Response:', JSON.stringify(data, null, 2));
+    
     // The API returns { coaches: [...], pagination: {...} }
     const coaches = data.coaches || [];
+    
+    console.log('Coaches count:', coaches.length);
+    console.log('First coach:', coaches[0]);
     
     // Map the API response to our Coach interface
     return coaches.map((coach: any) => ({
@@ -41,6 +47,7 @@ export async function getActiveCoaches(): Promise<Coach[]> {
       phone: coach.phone,
       profileImage: coach.profileImage,
       bio: coach.introduction,
+      headline: coach.headline, // Add headline from API
       specialization: coach.sport ? [coach.sport] : [],
       experience: coach.yearOfExperience,
       rating: 4.8, // Default rating since API doesn't provide it

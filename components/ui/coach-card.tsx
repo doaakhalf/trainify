@@ -7,17 +7,17 @@ import { motion } from 'framer-motion';
 
 interface CoachCardProps {
   name: string;
-  specialty: string;
   rating: number;
   subscribers: number;
   experience: number;
   price: number;
   image: string;
+  headline: string;
 }
 
 export function CoachCard({
   name,
-  specialty,
+  headline,
   rating,
   subscribers,
   experience,
@@ -45,7 +45,7 @@ export function CoachCard({
         
         <div className="flex-1 min-w-0">
           <h3 className="text-xl font-bold text-gray-900 mb-1">{name}</h3>
-          <p className="text-sm text-gray-600 leading-relaxed">{specialty}</p>
+          <p className="text-sm text-gray-600 leading-relaxed">{headline}</p>
         </div>
       </div>
 
