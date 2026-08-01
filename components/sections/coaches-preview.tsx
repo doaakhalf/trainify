@@ -6,13 +6,30 @@ import { content } from '@/content/ar';
 import { CoachCard } from '@/components/ui/coach-card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import type { Coach } from '@/lib/api';
 
 interface CoachesPreviewProps {
   selectedGoal?: string | null;
+  coaches?: Coach[];
 }
 
-export function CoachesPreview({ selectedGoal }: CoachesPreviewProps) {
-  const [filteredCoaches, setFilteredCoaches] = useState(content.coaches.items);
+export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPreviewProps) {
+  // Use API coaches if available, otherwise fallback to content
+  const initialCoaches = apiCoaches && apiCoaches.length > 0 
+    ? apiCoaches.map(coach => ({
+        id: coach._id,
+        name: coach.name,
+        image: coach.profileImage || '/placeholder-coach.jpg',
+        specialty: coach.specialization?.[0] || 'مدرب معتمد',
+        rating: coach.rating || 4.8,
+        experience: coach.experience || 5,
+        price: coach.price || 500,
+        goals: coach.specialization || [],
+        subscribers: coach.reviewCount || 0,
+      }))
+    : content.coaches.items;
+
+  const [filteredCoaches, setFilteredCoaches] = useState(initialCoaches);
 
   useEffect(() => {
     if (selectedGoal) {
