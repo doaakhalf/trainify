@@ -20,6 +20,7 @@ export async function getActiveCoaches(): Promise<Coach[]> {
       'https://promax-node-production-7c35.up.railway.app/api/coaches?status=active',
       {
         next: { revalidate: 3600 }, // Revalidate every hour
+        cache: 'no-store', // Always fetch fresh data in development
       }
     );
 
@@ -28,7 +29,26 @@ export async function getActiveCoaches(): Promise<Coach[]> {
     }
 
     const data = await response.json();
-    return data.coaches || data || [];
+    
+    // The API returns { coaches: [...], pagination: {...} }
+    const coaches = data.coaches || [];
+    
+    // Map the API response to our Coach interface
+    return coaches.map((coach: any) => ({
+      _id: coach.id || coach._id,
+      name: coach.name,
+      email: coach.email,
+      phone: coach.phone,
+      profileImage: coach.profileImage,
+      bio: coach.introduction,
+      specialization: coach.sport ? [coach.sport] : [],
+      experience: coach.yearOfExperience,
+      rating: 4.8, // Default rating since API doesn't provide it
+      reviewCount: coach.subscriptionNumber || 0,
+      price: coach.price,
+      status: coach.status,
+      createdAt: new Date().toISOString(),
+    }));
   } catch (error) {
     console.error('Error fetching coaches:', error);
     return [];

@@ -16,31 +16,43 @@ interface CoachesPreviewProps {
 export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPreviewProps) {
   // Use API coaches if available, otherwise fallback to content
   const initialCoaches = apiCoaches && apiCoaches.length > 0 
-    ? apiCoaches.map(coach => ({
-        id: coach._id,
-        name: coach.name,
-        image: coach.profileImage || '/placeholder-coach.jpg',
-        specialty: coach.specialization?.[0] || 'مدرب معتمد',
-        rating: coach.rating || 4.8,
-        experience: coach.experience || 5,
-        price: coach.price || 500,
-        goals: coach.specialization || [],
-        subscribers: coach.reviewCount || 0,
-      }))
+    ? apiCoaches.map(coach => {
+        // Fix image URL - prepend API base URL if relative path
+        let imageUrl = '/placeholder-coach.jpg';
+        if (coach.profileImage) {
+          if (coach.profileImage.startsWith('http')) {
+            imageUrl = coach.profileImage;
+          } else {
+            imageUrl = `https://promax-node-production-7c35.up.railway.app/${coach.profileImage}`;
+          }
+        }
+        
+        return {
+          id: coach._id,
+          name: coach.name,
+          image: imageUrl,
+          specialty: coach.specialization?.[0] || 'مدرب معتمد',
+          rating: coach.rating || 4.8,
+          experience: coach.experience || 5,
+          price: coach.price || 500,
+          goals: coach.specialization || [],
+          subscribers: coach.reviewCount || 0,
+        };
+      })
     : content.coaches.items;
 
   const [filteredCoaches, setFilteredCoaches] = useState(initialCoaches);
 
   useEffect(() => {
     if (selectedGoal) {
-      const filtered = content.coaches.items.filter((coach) =>
+      const filtered = initialCoaches.filter((coach) =>
         coach.goals.includes(selectedGoal)
       );
-      setFilteredCoaches(filtered.length > 0 ? filtered : content.coaches.items);
+      setFilteredCoaches(filtered.length > 0 ? filtered : initialCoaches);
     } else {
-      setFilteredCoaches(content.coaches.items);
+      setFilteredCoaches(initialCoaches);
     }
-  }, [selectedGoal]);
+  }, [selectedGoal, initialCoaches]);
 
   return (
     <section id="coaches-preview" className="py-20 lg:py-32 bg-gradient-to-b from-white to-gray-50/50">
