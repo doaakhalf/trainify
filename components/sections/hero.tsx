@@ -3,7 +3,8 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { content } from '@/content/ar';
-import { Smartphone, Check } from 'lucide-react';
+import { Smartphone, Check, Apple } from 'lucide-react';
+import Image from 'next/image';
 
 interface HeroProps {
   onGoalSelect?: (goalId: string) => void;
@@ -34,15 +35,30 @@ export function Hero({ onGoalSelect }: HeroProps = {}) {
               </p>
             </div>
 
-            {/* CTAs */}
+            {/* Download Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-end">
-              <Button size="lg" className="group shadow-lg shadow-primary/20">
-                <Smartphone className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
-                {content.hero.ctaPrimary}
-              </Button>
-              <Button size="lg" variant="secondary" className="shadow-md">
-                {content.hero.ctaSecondary}
-              </Button>
+              <a 
+                href="https://apps.apple.com/eg/app/trainify/id6786225762"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block"
+              >
+                <Button size="lg" className="group shadow-lg shadow-primary/20 w-full sm:w-auto">
+                  <Apple className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
+                  حمّل من App Store
+                </Button>
+              </a>
+              <a 
+                href="https://play.google.com/store/apps/details?id=com.mrazzak.trainify"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block"
+              >
+                <Button size="lg" variant="secondary" className="shadow-md w-full sm:w-auto">
+                  <Smartphone className="w-5 h-5 ml-2" />
+                  حمّل من Google Play
+                </Button>
+              </a>
             </div>
 
             {/* Goal Selection */}
