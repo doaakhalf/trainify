@@ -5,10 +5,35 @@
 @layer base {
   * {
     @apply border-gray-200;
+    direction: rtl;
   }
   
   body {
     @apply bg-white text-gray-900;
+    font-feature-settings: 'cv11', 'ss01';
+    font-variation-settings: 'opsz' 32;
+    direction: rtl;
+    text-align: right;
+  }
+
+  /* Fix Tailwind utilities for RTL */
+  [dir="rtl"] .text-left {
+    text-align: right !important;
+  }
+  
+  [dir="rtl"] .text-right {
+    text-align: left !important;
+  }
+  
+  /* Fix margins and paddings for RTL */
+  [dir="rtl"] .ml-auto {
+    margin-right: auto !important;
+    margin-left: 0 !important;
+  }
+  
+  [dir="rtl"] .mr-auto {
+    margin-left: auto !important;
+    margin-right: 0 !important;
   }
 
   html {
