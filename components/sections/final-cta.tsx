@@ -23,11 +23,24 @@ export function FinalCTA() {
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Button size="lg" className="group">
+            <Button
+              size="lg"
+              className="group"
+              onClick={() => {
+                document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
               <Smartphone className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
               {content.finalCta.ctaPrimary}
             </Button>
-            <Button size="lg" variant="secondary" className="group">
+            <Button
+              size="lg"
+              variant="secondary"
+              className="group"
+              onClick={() => {
+                document.getElementById('for-coaches')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
               <UserPlus className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
               {content.finalCta.ctaSecondary}
             </Button>

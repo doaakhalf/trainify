@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { content } from '@/content/ar';
-import { Smartphone, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import Image from 'next/image';
 
 interface HeroProps {
@@ -27,7 +27,7 @@ export function Hero({ onGoalSelect }: HeroProps = {}) {
           >
             {/* Headline */}
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-gray-900">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold !leading-tight text-gray-900">
                 {content.hero.headline}
               </h1>
               <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
@@ -36,9 +36,9 @@ export function Hero({ onGoalSelect }: HeroProps = {}) {
             </div>
 
             {/* Download Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-end">
+            <div id="download" className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start scroll-mt-24">
               <a 
-                href="https://apps.apple.com/eg/app/trainify/id6786225762"
+                href={content.footer.download.appStore}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group transition-transform hover:scale-105"
@@ -52,7 +52,7 @@ export function Hero({ onGoalSelect }: HeroProps = {}) {
                 />
               </a>
               <a 
-                href="https://play.google.com/store/apps/details?id=com.mrazzak.trainify"
+                href={content.footer.download.googlePlay}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group transition-transform hover:scale-105"
@@ -98,7 +98,7 @@ export function Hero({ onGoalSelect }: HeroProps = {}) {
             </div>
 
             {/* Trust Indicators */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-end gap-6 pt-4">
+            <div className="flex flex-wrap items-center justify-center lg:justify-center gap-6 pt-4">
               {content.hero.trustIndicators.map((indicator, index) => (
                 <div key={index} className="flex items-center gap-2 text-gray-700">
                   <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
@@ -130,11 +130,14 @@ export function Hero({ onGoalSelect }: HeroProps = {}) {
                 <div className="aspect-[9/19] bg-white rounded-[2rem] overflow-hidden">
                   <div className="h-full bg-gradient-to-br from-primary/10 via-white to-primary/5 flex items-center justify-center p-6">
                     <div className="text-center space-y-3">
-                      <div className="w-16 h-16 mx-auto bg-primary rounded-2xl flex items-center justify-center shadow-lg">
-                        <Smartphone className="w-8 h-8 text-white" />
-                      </div>
+                      <Image
+                        src="/logo.png"
+                        alt="Trainify"
+                        width={80}
+                        height={80}
+                        className="w-20 h-20 mx-auto rounded-2xl"
+                      />
                       <div className="text-xl font-bold text-gray-900">Trainify</div>
-                      <div className="text-sm text-gray-600">قريباً على المتاجر</div>
                     </div>
                   </div>
                 </div>

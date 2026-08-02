@@ -125,7 +125,13 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
             viewport={{ once: true }}
             className="text-center"
           >
-            <Button size="lg" className="group">
+            <Button
+              size="lg"
+              className="group"
+              onClick={() => {
+                document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
               {content.coaches.cta}
               <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
             </Button>

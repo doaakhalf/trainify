@@ -14,7 +14,7 @@ const iconMap = {
 
 export function ForCoaches() {
   return (
-    <section className="py-20 lg:py-32 bg-gradient-to-br from-primary to-primary-dark text-white overflow-hidden relative">
+    <section id="for-coaches" className="py-20 lg:py-32 bg-gradient-to-br from-primary to-primary-dark text-white overflow-hidden relative scroll-mt-24">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(255,255,255,0.05),transparent_50%)]" />
       
@@ -69,6 +69,9 @@ export function ForCoaches() {
               size="lg"
               variant="secondary"
               className="bg-white text-primary hover:bg-gray-50 hover:scale-105 shadow-2xl"
+              onClick={() => {
+                document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               {content.forCoaches.cta}
             </Button>

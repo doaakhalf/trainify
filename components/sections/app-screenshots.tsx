@@ -19,7 +19,8 @@ export function AppScreenshots() {
             {content.screenshots.title}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            اكتشف كل مميزات التطبيق
+          شوف التطبيق من جوا
+  
           </p>
         </motion.div>
 

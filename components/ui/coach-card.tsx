@@ -77,7 +77,13 @@ export function CoachCard({
           </p>
         </div>
         
-        <Button size="sm" className="shadow-md">
+        <Button
+          size="sm"
+          className="shadow-md"
+          onClick={() => {
+            document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+        >
           شوف التفاصيل
         </Button>
       </div>

@@ -72,7 +72,7 @@ export const content = {
   },
 
   whyTrainify: {
-    title: 'ليش Trainify؟',
+    title: 'ليه Trainify؟',
     features: [
       {
         icon: 'trophy',
@@ -179,7 +179,7 @@ export const content = {
   },
 
   screenshots: {
-    title: 'شوف التطبيق من جوا',
+    title: 'اكتشف كل مميزات التطبيق',
     items: [
       {
         image: '/WhatsApp Image 2026-08-01 at 9.04.47 PM.jpeg',
@@ -240,7 +240,7 @@ export const content = {
     title: 'آراء المستخدمين',
     items: [
       {
-        name: 'أحمد السالم',
+        name: 'أحمد كمال',
         role: 'لاعب كمال أجسام',
         text: 'التطبيق سهل وواضح، والكوتش ملتزم بالخطة. فرق واضح في أدائي.',
         rating: 5,
@@ -249,10 +249,10 @@ export const content = {
         name: 'سارة محمد',
         role: 'مدربة لياقة',
         text: 'منصة احترافية تسهل التواصل مع المتدربين وإدارة الاشتراكات.',
-        rating: 5,
+        rating: 4,
       },
       {
-        name: 'خالد العتيبي',
+        name: 'خالد فياض',
         role: 'رياضي',
         text: 'وجدت الكوتش المناسب لي بسرعة، والمتابعة ممتازة.',
         rating: 5,
@@ -295,8 +295,8 @@ export const content = {
   footer: {
     download: {
       title: 'حمل التطبيق',
-      googlePlay: 'https://play.google.com/store',
-      appStore: 'https://apps.apple.com',
+      googlePlay: 'https://play.google.com/store/apps/details?id=com.mrazzak.trainify',
+      appStore: 'https://apps.apple.com/eg/app/trainify/id6786225762',
     },
     links: {
       privacy: 'سياسة الخصوصية',
@@ -313,7 +313,7 @@ export const content = {
     },
     contact: {
       email: 'support@trainify.app',
-      phone: '+966 XX XXX XXXX',
+      phone: '01011543326',
     },
     copyright: '© 2026 Trainify. جميع الحقوق محفوظة.',
   },

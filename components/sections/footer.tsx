@@ -16,7 +16,7 @@ export function Footer() {
           </h3>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
-              href="https://apps.apple.com/eg/app/trainify/id6786225762"
+              href={content.footer.download.appStore}
               target="_blank"
               rel="noopener noreferrer"
               className="group transition-transform hover:scale-105"
@@ -30,7 +30,7 @@ export function Footer() {
               />
             </a>
             <a
-              href="https://play.google.com/store/apps/details?id=com.mrazzak.trainify"
+              href={content.footer.download.googlePlay}
               target="_blank"
               rel="noopener noreferrer"
               className="group transition-transform hover:scale-105"
@@ -94,7 +94,7 @@ export function Footer() {
 
           <div className="text-center md:text-right">
             <h4 className="font-bold mb-4">تابعنا</h4>
-            <div className="flex gap-4 justify-center md:justify-end">
+            <div className="flex gap-4 justify-center md:justify-start">
               <a
                 href={content.footer.social.instagram.url}
                 target="_blank"
@@ -142,7 +142,7 @@ export function Footer() {
               <li>
                 <a
                   href={`mailto:${content.footer.contact.email}`}
-                  className="flex items-center gap-2 text-gray-400 hover:text-primary transition-colors justify-center md:justify-end"
+                  className="flex items-center gap-2 text-gray-400 hover:text-primary transition-colors justify-center md:justify-start"
                 >
                   <Mail className="w-4 h-4" />
                   <span className="text-sm">{content.footer.contact.email}</span>
@@ -151,7 +151,7 @@ export function Footer() {
               <li>
                 <a
                   href={`tel:${content.footer.contact.phone}`}
-                  className="flex items-center gap-2 text-gray-400 hover:text-primary transition-colors justify-center md:justify-end"
+                  className="flex items-center gap-2 text-gray-400 hover:text-primary transition-colors justify-center md:justify-start"
                 >
                   <Phone className="w-4 h-4" />
                   <span className="text-sm">{content.footer.contact.phone}</span>
