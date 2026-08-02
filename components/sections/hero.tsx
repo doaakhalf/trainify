@@ -43,9 +43,11 @@ export function Hero({ onGoalSelect }: HeroProps = {}) {
                 rel="noopener noreferrer"
                 className="group transition-transform hover:scale-105"
               >
-                <img 
+                <Image 
                   src="/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" 
                   alt="Download on the App Store"
+                  width={156}
+                  height={52}
                   className="h-14 w-auto"
                 />
               </a>
@@ -55,9 +57,11 @@ export function Hero({ onGoalSelect }: HeroProps = {}) {
                 rel="noopener noreferrer"
                 className="group transition-transform hover:scale-105"
               >
-                <img 
+                <Image 
                   src="/Google_Play_Store_badge_EN.svg" 
                   alt="Get it on Google Play"
+                  width={156}
+                  height={52}
                   className="h-14 w-auto"
                 />
               </a>

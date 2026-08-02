@@ -21,9 +21,11 @@ export function Footer() {
               rel="noopener noreferrer"
               className="group transition-transform hover:scale-105"
             >
-              <img 
+              <Image 
                 src="/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" 
                 alt="Download on the App Store"
+                width={135}
+                height={40}
                 className="h-12 w-auto"
               />
             </a>
@@ -33,9 +35,11 @@ export function Footer() {
               rel="noopener noreferrer"
               className="group transition-transform hover:scale-105"
             >
-              <img 
+              <Image 
                 src="/Google_Play_Store_badge_EN.svg" 
                 alt="Get it on Google Play"
+                width={135}
+                height={40}
                 className="h-12 w-auto"
               />
             </a>

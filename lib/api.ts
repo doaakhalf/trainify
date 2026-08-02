@@ -17,13 +17,18 @@ export interface Coach {
 
 export async function getActiveCoaches(): Promise<Coach[]> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
     const response = await fetch(
       'https://promax-node-production-7c35.up.railway.app/api/coaches?status=active',
       {
         next: { revalidate: 3600 }, // Revalidate every hour
-        cache: 'no-store', // Always fetch fresh data in development
+        signal: controller.signal,
       }
     );
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error('Failed to fetch coaches');
@@ -58,6 +63,7 @@ export async function getActiveCoaches(): Promise<Coach[]> {
     }));
   } catch (error) {
     console.error('Error fetching coaches:', error);
+    // Return empty array to allow page to load with fallback content
     return [];
   }
 }

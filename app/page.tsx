@@ -3,6 +3,9 @@ import { content } from '@/content/ar';
 import HomeClient from './home-client';
 import { getActiveCoaches } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // Revalidate every hour
+
 export const metadata: Metadata = {
   title: content.meta.title,
   description: content.meta.description,
