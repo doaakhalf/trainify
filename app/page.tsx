@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: content.meta.title,
     description: content.meta.description,
-    url: 'https://trainify.app',
+    url: 'https://trainifypro.com',
     siteName: 'Trainify',
     locale: 'ar_SA',
     type: 'website',

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { content } from '@/content/ar';
-import { Twitter, Instagram, Facebook, Mail, Phone, Download } from 'lucide-react';
+import { Twitter, Instagram, Facebook, Mail, Phone } from 'lucide-react';
 import Image from 'next/image';
 
 export function Footer() {
@@ -16,32 +16,28 @@ export function Footer() {
           </h3>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
-              href={content.footer.download.googlePlay}
+              href="https://apps.apple.com/eg/app/trainify/id6786225762"
               target="_blank"
               rel="noopener noreferrer"
-              className="group"
+              className="group transition-transform hover:scale-105"
             >
-              <div className="flex items-center gap-3 bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-900 transition-all duration-300 hover:scale-105">
-                <Download className="w-6 h-6" />
-                <div className="text-right">
-                  <div className="text-xs opacity-80">حمل من</div>
-                  <div className="text-sm font-bold">Google Play</div>
-                </div>
-              </div>
+              <img 
+                src="/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" 
+                alt="Download on the App Store"
+                className="h-12 w-auto"
+              />
             </a>
             <a
-              href={content.footer.download.appStore}
+              href="https://play.google.com/store/apps/details?id=com.mrazzak.trainify"
               target="_blank"
               rel="noopener noreferrer"
-              className="group"
+              className="group transition-transform hover:scale-105"
             >
-              <div className="flex items-center gap-3 bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-900 transition-all duration-300 hover:scale-105">
-                <Download className="w-6 h-6" />
-                <div className="text-right">
-                  <div className="text-xs opacity-80">حمل من</div>
-                  <div className="text-sm font-bold">App Store</div>
-                </div>
-              </div>
+              <img 
+                src="/Google_Play_Store_badge_EN.svg" 
+                alt="Get it on Google Play"
+                className="h-12 w-auto"
+              />
             </a>
           </div>
         </div>

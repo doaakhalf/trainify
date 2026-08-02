@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://trainify.app/sitemap.xml
+Sitemap: https://trainifypro.com/sitemap.xml
 
 # Google
 User-agent: Googlebot

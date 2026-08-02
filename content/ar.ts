@@ -315,6 +315,6 @@ export const content = {
       email: 'support@trainify.app',
       phone: '+966 XX XXX XXXX',
     },
-    copyright: '© 2024 Trainify. جميع الحقوق محفوظة.',
+    copyright: '© 2026 Trainify. جميع الحقوق محفوظة.',
   },
 };

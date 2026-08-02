@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { content } from '@/content/ar';
-import { Smartphone, Check, Apple } from 'lucide-react';
+import { Smartphone, Check } from 'lucide-react';
 import Image from 'next/image';
 
 interface HeroProps {
@@ -36,36 +36,30 @@ export function Hero({ onGoalSelect }: HeroProps = {}) {
             </div>
 
             {/* Download Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-end">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-end">
               <a 
                 href="https://apps.apple.com/eg/app/trainify/id6786225762"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group"
+                className="group transition-transform hover:scale-105"
               >
-                <div className="flex items-center gap-3 bg-black hover:bg-gray-900 text-white px-6 py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105">
-                  <Apple className="w-6 h-6" />
-                  <div className="text-right">
-                    <div className="text-xs opacity-90">حمّل من</div>
-                    <div className="text-sm font-bold">App Store</div>
-                  </div>
-                </div>
+                <img 
+                  src="/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" 
+                  alt="Download on the App Store"
+                  className="h-14 w-auto"
+                />
               </a>
               <a 
                 href="https://play.google.com/store/apps/details?id=com.mrazzak.trainify"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group"
+                className="group transition-transform hover:scale-105"
               >
-                <div className="flex items-center gap-3 bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-200 px-6 py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-105">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
-                  </svg>
-                  <div className="text-right">
-                    <div className="text-xs opacity-70">حمّل من</div>
-                    <div className="text-sm font-bold">Google Play</div>
-                  </div>
-                </div>
+                <img 
+                  src="/Google_Play_Store_badge_EN.svg" 
+                  alt="Get it on Google Play"
+                  className="h-14 w-auto"
+                />
               </a>
             </div>
 

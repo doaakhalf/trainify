@@ -4,8 +4,8 @@ export const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Trainify',
-  url: 'https://trainify.app',
-  logo: 'https://trainify.app/icon-512.png',
+  url: 'https://trainifypro.com',
+  logo: 'https://trainifypro.com/icon-512.png',
   description: content.meta.description,
   sameAs: [
     'https://twitter.com/trainify',
@@ -60,12 +60,12 @@ export const webPageSchema = {
   '@type': 'WebPage',
   name: 'Trainify - منصة تربط الرياضيين بالمدربين المحترفين',
   description: 'اعثر على المدرب المناسب لهدفك من بين أفضل المدربين المعتمدين في الوطن العربي',
-  url: 'https://trainify.app',
+  url: 'https://trainifypro.com',
   inLanguage: 'ar',
   isPartOf: {
     '@type': 'WebSite',
     name: 'Trainify',
-    url: 'https://trainify.app',
+    url: 'https://trainifypro.com',
   },
   about: {
     '@type': 'Thing',
@@ -74,7 +74,7 @@ export const webPageSchema = {
   },
   primaryImageOfPage: {
     '@type': 'ImageObject',
-    url: 'https://trainify.app/og-image.png',
+    url: 'https://trainifypro.com/og-image.png',
     width: 1200,
     height: 630,
   },

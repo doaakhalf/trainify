@@ -19,14 +19,14 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://trainify.app'),
+  metadataBase: new URL('https://trainifypro.com'),
   title: {
     default: content.meta.title,
     template: '%s | Trainify',
   },
   description: content.meta.description,
   keywords: content.meta.keywords,
-  authors: [{ name: 'Trainify', url: 'https://trainify.app' }],
+  authors: [{ name: 'Trainify', url: 'https://trainifypro.com' }],
   creator: 'Trainify',
   publisher: 'Trainify',
   applicationName: 'Trainify',
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ar_SA',
-    url: 'https://trainify.app',
+    url: 'https://trainifypro.com',
     title: content.meta.title,
     description: content.meta.description,
     siteName: 'Trainify',
@@ -89,10 +89,10 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://trainify.app',
+    canonical: 'https://trainifypro.com',
     languages: {
-      'ar-SA': 'https://trainify.app',
-      'ar': 'https://trainify.app',
+      'ar-SA': 'https://trainifypro.com',
+      'ar': 'https://trainifypro.com',
     },
   },
   verification: {
