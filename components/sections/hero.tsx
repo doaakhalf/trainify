@@ -115,7 +115,7 @@ export function Hero({ onGoalSelect }: HeroProps = {}) {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative flex justify-center lg:justify-start"
+            className="relative flex justify-center lg:justify-center"
           >
             <div className="relative" style={{ width: '240px' }}>
               {/* Glow Effect */}
