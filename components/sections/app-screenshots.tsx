@@ -20,7 +20,6 @@ export function AppScreenshots() {
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           شوف التطبيق من جوا
-  
           </p>
         </motion.div>
 
