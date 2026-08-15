@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Coach Signup API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            direction: rtl;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #f97316;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #ea580c;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+        }
+        .error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Coach Signup API</h1>
+    <p>هذا الملف لاختبار الـ API قبل بناء الـ UI الكامل</p>
+
+    <form id="testForm">
+        <h2>البيانات الأساسية</h2>
+        
+        <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="email" value="test@example.com" required>
+        </div>
+
+        <div class="form-group">
+            <label>Password *</label>
+            <input type="password" id="password" value="test123" required>
+        </div>
+
+        <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" id="firstName" value="أحمد" required>
+        </div>
+
+        <div class="form-group">
+            <label>Last Name *</label>
+            <input type="text" id="lastName" value="محمد" required>
+        </div>
+
+        <div class="form-group">
+            <label>Phone Number *</label>
+            <input type="tel" id="phoneNumber" value="01012345678" required>
+        </div>
+
+        <div class="form-group">
+            <label>Gender *</label>
+            <select id="gender" required>
+                <option value="male">ذكر</option>
+                <option value="female">أنثى</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Years of Experience *</label>
+            <input type="number" id="yearOfExperience" value="5" required>
+        </div>
+
+        <div class="form-group">
+            <label>Profile Image *</label>
+            <input type="file" id="profileImage" accept="image/*" required>
+        </div>
+
+        <div class="form-group">
+            <label>Headline *</label>
+            <input type="text" id="headline" value="مدرب كمال أجسام محترف" required>
+        </div>
+
+        <div class="form-group">
+            <label>Training Experience *</label>
+            <textarea id="trainingExperience" required>متخصص في تدريب القوة وبناء العضلات</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Introduction *</label>
+            <textarea id="introduction" required>مدرب معتمد مع 5 سنوات من الخبرة</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Motivation *</label>
+            <textarea id="motivation" required>نهج يركز على النتائج مع خطط مخصصة</textarea>
+        </div>
+
+        <h2>الإنجازات (اختياري)</h2>
+        
+        <div class="form-group">
+            <label>Achievement Name</label>
+            <input type="text" id="achievementName" value="بطولة مصر">
+        </div>
+
+        <div class="form-group">
+            <label>Achievement Rank</label>
+            <input type="text" id="achievementRank" value="المركز الأول">
+        </div>
+
+        <div class="form-group">
+            <label>Achievement Image</label>
+            <input type="file" id="achievementImage" accept="image/*">
+        </div>
+
+        <h2>الدفع</h2>
+
+        <div class="form-group">
+            <label>Monthly Price (EGP) *</label>
+            <input type="number" id="monthlyPriceEgp" value="1000" required>
+        </div>
+
+        <div class="form-group">
+            <label>Payment Method *</label>
+            <select id="paymentMethod" required>
+                <option value="instapay">Instapay</option>
+                <option value="vodafone">Vodafone Cash</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Instapay Link</label>
+            <input type="text" id="instapayLink" value="https://ipn.eg/S/test/instapay/abc123">
+        </div>
+
+        <button type="submit">🚀 Test API Call</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '⏳ Sending request...';
+            resultDiv.className = 'result';
+
+            try {
+                const form = new FormData();
+                
+                // Text fields
+                form.append('email', document.getElementById('email').value);
+                form.append('password', document.getElementById('password').value);
+                form.append('confirmPassword', document.getElementById('password').value);
+                form.append('user_type', 'coach');
+                form.append('firstName', document.getElementById('firstName').value);
+                form.append('lastName', document.getElementById('lastName').value);
+                form.append('phoneNumber', document.getElementById('phoneNumber').value);
+                form.append('gender', document.getElementById('gender').value);
+                form.append('yearOfExperience', document.getElementById('yearOfExperience').value);
+                form.append('headline', document.getElementById('headline').value);
+                form.append('trainingExperience', document.getElementById('trainingExperience').value);
+                form.append('introduction', document.getElementById('introduction').value);
+                form.append('motivation', document.getElementById('motivation').value);
+                form.append('monthlyPriceEgp', document.getElementById('monthlyPriceEgp').value);
+                form.append('paymentMethod', document.getElementById('paymentMethod').value);
+                form.append('instapayLink', document.getElementById('instapayLink').value);
+
+                // Profile image
+                const profileImage = document.getElementById('profileImage').files[0];
+                if (profileImage) {
+                    form.append('profileImage', profileImage);
+                }
+
+                // Achievement (if provided)
+                const achievementName = document.getElementById('achievementName').value;
+                const achievementRank = document.getElementById('achievementRank').value;
+                if (achievementName && achievementRank) {
+                    form.append('achievements', JSON.stringify([{
+                        name: achievementName,
+                        rank: achievementRank
+                    }]));
+
+                    const achievementImage = document.getElementById('achievementImage').files[0];
+                    if (achievementImage) {
+                        form.append('achievements', achievementImage);
+                    }
+                }
+
+                // CRITICAL: Do NOT set Content-Type header!
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 60000);
+
+                const response = await fetch('https://promax-node-production-7c35.up.railway.app/api/register', {
+                    method: 'POST',
+                    body: form,
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeout);
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ SUCCESS!\n\n' + JSON.stringify(result, null, 2);
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ ERROR!\n\n' + JSON.stringify(result, null, 2);
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ NETWORK ERROR!\n\n' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

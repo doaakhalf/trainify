@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { content } from '@/content/ar';
 import { Users, Zap, Target, DollarSign } from 'lucide-react';
+import Link from 'next/link';
 
 const iconMap = {
   users: Users,
@@ -65,16 +66,15 @@ export function ForCoaches() {
               })}
             </div>
 
-            <Button
-              size="lg"
-              variant="secondary"
-              className="bg-white text-primary hover:bg-gray-50 hover:scale-105 shadow-2xl"
-              onClick={() => {
-                document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              {content.forCoaches.cta}
-            </Button>
+            <Link href="/coach-signup" className="inline-block">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="bg-white text-primary hover:bg-gray-50 hover:scale-105 shadow-2xl"
+              >
+                {content.forCoaches.cta}
+              </Button>
+            </Link>
           </motion.div>
         </div>
       </div>

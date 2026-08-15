@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Smartphone, UserPlus } from 'lucide-react';
 import { content } from '@/content/ar';
+import Link from 'next/link';
 
 export function FinalCTA() {
   return (
@@ -33,17 +34,16 @@ export function FinalCTA() {
               <Smartphone className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
               {content.finalCta.ctaPrimary}
             </Button>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="group"
-              onClick={() => {
-                document.getElementById('for-coaches')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <UserPlus className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
-              {content.finalCta.ctaSecondary}
-            </Button>
+            <Link href="/coach-signup" className="inline-block">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="group"
+              >
+                <UserPlus className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
+                {content.finalCta.ctaSecondary}
+              </Button>
+            </Link>
           </div>
         </motion.div>
       </div>
