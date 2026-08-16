@@ -44,6 +44,18 @@ export function resolveImageUrl(path?: string | null): string {
   return `${API_BASE}/${path}`;
 }
 
+function extractImagePath(value: unknown): string | undefined {
+  if (!value) return undefined;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    if (typeof obj.imageUrl === 'string') return obj.imageUrl;
+    if (typeof obj.image === 'string') return obj.image;
+    if (typeof obj.url === 'string') return obj.url;
+  }
+  return undefined;
+}
+
 function mapCoach(coach: Record<string, unknown>): Coach {
   const achievementsRaw = Array.isArray(coach.achievements) ? coach.achievements : [];
   const certificatesRaw = Array.isArray(coach.certificates) ? coach.certificates : [];
@@ -81,7 +93,7 @@ function mapCoach(coach: Record<string, unknown>): Coach {
         _id: a._id ? String(a._id) : undefined,
         name: String(a.name || ''),
         rank: a.rank != null ? String(a.rank) : undefined,
-        image: a.image ? String(a.image) : undefined,
+        image: extractImagePath(a.image ?? a.imageUrl),
       };
     }),
     certificates: certificatesRaw.map((item) => {
@@ -90,10 +102,12 @@ function mapCoach(coach: Record<string, unknown>): Coach {
         _id: c._id ? String(c._id) : undefined,
         name: String(c.name || ''),
         year: typeof c.year === 'number' ? c.year : undefined,
-        image: c.image ? String(c.image) : undefined,
+        image: extractImagePath(c.image ?? c.imageUrl),
       };
     }),
-    galleryImages: galleryRaw.map((img) => String(img)),
+    galleryImages: galleryRaw
+      .map((img) => extractImagePath(img))
+      .filter((path): path is string => Boolean(path)),
   };
 }
 

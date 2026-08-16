@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import {
+  ArrowLeft,
   ArrowRight,
   Award,
   Calendar,
@@ -102,23 +103,56 @@ export function CoachDetails({ coach }: CoachDetailsProps) {
                 </h2>
                 <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-gray-100">
                   <Image
+                    key={gallery[activeGallery]}
                     src={resolveImageUrl(gallery[activeGallery])}
-                    alt={`${coach.name} transformation`}
+                    alt={`${coach.name} transformation ${activeGallery + 1}`}
                     fill
                     className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 70vw"
                   />
+                  {gallery.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveGallery((prev) =>
+                            prev === 0 ? gallery.length - 1 : prev - 1
+                          )
+                        }
+                        className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition hover:bg-black/60"
+                        aria-label="Previous image"
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveGallery((prev) =>
+                            prev === gallery.length - 1 ? 0 : prev + 1
+                          )
+                        }
+                        className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition hover:bg-black/60"
+                        aria-label="Next image"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
                 </div>
                 {gallery.length > 1 && (
-                  <div className="mt-3 flex justify-center gap-2">
+                  <div className="mt-3 flex justify-center gap-1.5">
                     {gallery.map((_, index) => (
                       <button
                         key={index}
                         type="button"
                         onClick={() => setActiveGallery(index)}
-                        className={`h-2 w-2 rounded-full transition-colors ${
-                          index === activeGallery ? 'bg-primary' : 'bg-gray-300'
+                        className={`h-2.5 rounded-full transition-all ${
+                          index === activeGallery
+                            ? 'w-6 bg-primary'
+                            : 'w-2.5 bg-gray-300 hover:bg-gray-400'
                         }`}
                         aria-label={`Image ${index + 1}`}
+                        aria-current={index === activeGallery}
                       />
                     ))}
                   </div>

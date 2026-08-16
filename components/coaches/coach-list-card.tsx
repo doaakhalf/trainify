@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Calendar, Star, Users } from 'lucide-react';
 import { content } from '@/content/ar';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -15,14 +16,27 @@ interface CoachListCardProps {
 }
 
 export function CoachListCard({ coach }: CoachListCardProps) {
+  const router = useRouter();
   const t = content.coachesPage;
+  const detailsHref = `/coaches/${coach._id}`;
   const image = resolveImageUrl(coach.profileImage);
   const bio = coach.introduction?.trim();
   const snippet =
     bio && bio.length > 140 ? `${bio.slice(0, 140).trim()}…` : bio;
 
   return (
-    <article className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+    <article
+      role="link"
+      tabIndex={0}
+      onClick={() => router.push(detailsHref)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          router.push(detailsHref);
+        }
+      }}
+      className="cursor-pointer rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+    >
       <div className="mb-4 flex items-start gap-4">
         <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-100">
           <Image src={image} alt={coach.name} fill className="object-cover" />
@@ -76,12 +90,19 @@ export function CoachListCard({ coach }: CoachListCardProps) {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Link
-          href={`/coaches/${coach._id}`}
+          href={detailsHref}
+          onClick={(e) => e.stopPropagation()}
           className={cn(buttonVariants({ variant: 'secondary' }), 'w-full')}
         >
           {t.seeDetails}
         </Link>
-        <Button className="w-full" onClick={openPrimaryStore}>
+        <Button
+          className="w-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            openPrimaryStore();
+          }}
+        >
           {t.subscribeViaApp}
         </Button>
       </div>
