@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { content } from '@/content/ar';
 import { CoachCard } from '@/components/ui/coach-card';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import type { Coach } from '@/lib/api';
+import { resolveImageUrl } from '@/lib/api';
+import { cn } from '@/lib/utils';
 
 interface CoachesPreviewProps {
   selectedGoal?: string | null;
@@ -14,33 +17,32 @@ interface CoachesPreviewProps {
 }
 
 export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPreviewProps) {
-  // Use API coaches if available, otherwise fallback to content
   const initialCoaches = useMemo(() => {
-    return apiCoaches && apiCoaches.length > 0 
-      ? apiCoaches.map(coach => {
-          // Fix image URL - prepend API base URL if relative path
-          let imageUrl = '/placeholder-coach.jpg';
-          if (coach.profileImage) {
-            if (coach.profileImage.startsWith('http')) {
-              imageUrl = coach.profileImage;
-            } else {
-              imageUrl = `https://promax-node-production-7c35.up.railway.app/${coach.profileImage}`;
-            }
-          }
-          
-          return {
-            id: coach._id,
-            name: coach.name,
-            image: imageUrl,
-            headline: coach.headline || 'مدرب معتمد',
-            rating: coach.rating || 4.8,
-            experience: coach.experience || 5,
-            price: coach.price || 500,
-            goals: coach.specialization || [],
-            subscribers: coach.reviewCount || 0,
-          };
-        })
-      : content.coaches.items;
+    if (apiCoaches && apiCoaches.length > 0) {
+      return apiCoaches.map((coach) => ({
+        id: coach._id,
+        name: coach.name,
+        image: resolveImageUrl(coach.profileImage),
+        headline: coach.headline || 'مدرب معتمد',
+        rating: coach.rating,
+        experience: coach.experience || 0,
+        price: coach.price || 0,
+        goals: [] as string[],
+        subscribers: coach.subscribers || 0,
+      }));
+    }
+
+    return content.coaches.items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      image: item.image,
+      headline: item.headline,
+      rating: item.rating,
+      experience: item.experience,
+      price: item.price,
+      goals: item.goals,
+      subscribers: item.subscribers,
+    }));
   }, [apiCoaches]);
 
   const [filteredCoaches, setFilteredCoaches] = useState(initialCoaches);
@@ -69,7 +71,7 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             {content.coaches.title}
           </h2>
-          {selectedGoal && filteredCoaches.length < content.coaches.items.length && (
+          {selectedGoal && filteredCoaches.length < initialCoaches.length && (
             <p className="text-lg text-gray-600">
               المدربين المتخصصين في هدفك
             </p>
@@ -86,6 +88,7 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <CoachCard
+                id={coach.id}
                 name={coach.name}
                 headline={coach.headline}
                 rating={coach.rating}
@@ -98,45 +101,20 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
           ))}
         </div>
 
-        {filteredCoaches.length < content.coaches.items.length && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center"
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <Link
+            href="/coaches"
+            className={cn(buttonVariants({ size: 'lg' }), 'group inline-flex')}
           >
-            <p className="text-gray-600 mb-6">
-              هنضيف مدربين أكتر قريبًا، تقدر تشوف باقي المدربين دلوقتي
-            </p>
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => setFilteredCoaches(content.coaches.items)}
-            >
-              شوف كل المدربين
-            </Button>
-          </motion.div>
-        )}
-
-        {filteredCoaches.length === content.coaches.items.length && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <Button
-              size="lg"
-              className="group"
-              onClick={() => {
-                document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              {content.coaches.cta}
-              <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-            </Button>
-          </motion.div>
-        )}
+            {content.coaches.cta}
+            <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

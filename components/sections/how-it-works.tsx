@@ -5,7 +5,7 @@ import { content } from '@/content/ar';
 
 export function HowItWorks() {
   return (
-    <section className="py-20 lg:py-32 bg-white">
+    <section id="how-it-works" className="py-20 lg:py-32 bg-white scroll-mt-24">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

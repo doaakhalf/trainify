@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { SiteHeader } from '@/components/layout/site-header';
 import { Hero } from '@/components/sections/hero';
 import { CoachCTABanner } from '@/components/sections/coach-cta-banner';
 import { CoachesPreview } from '@/components/sections/coaches-preview';
@@ -25,6 +26,7 @@ export default function HomeClient({ coaches }: HomeClientProps) {
 
   return (
     <main>
+      <SiteHeader />
       <Hero onGoalSelect={setSelectedGoal} />
       <CoachCTABanner />
       <CoachesPreview selectedGoal={selectedGoal} coaches={coaches} />

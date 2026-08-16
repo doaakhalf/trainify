@@ -13,6 +13,7 @@ import { registerCoach, getErrorMessage } from '@/lib/coach-api';
 import { personalInfoSchema, achievementsSchema, paymentInfoSchema } from '@/lib/validations/coach-signup';
 import type { CoachSignupFormData, Achievement, Certificate } from '@/types/coach-signup';
 import { Button } from '@/components/ui/button';
+import { SiteHeader } from '@/components/layout/site-header';
 
 const TOTAL_STEPS = 3;
 
@@ -167,8 +168,10 @@ export default function CoachSignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4">
-      <div className="max-w-3xl mx-auto">
+    <>
+      <SiteHeader />
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4">
+      <div className="mx-auto w-full max-w-5xl">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 !leading-relaxed">
@@ -285,5 +288,6 @@ export default function CoachSignupPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

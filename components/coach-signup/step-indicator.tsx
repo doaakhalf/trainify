@@ -71,9 +71,9 @@ export function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
       </div>
 
       {/* Step Counter */}
-      <div className="text-center mt-4 text-sm text-gray-600">
+      {/* <div className="text-center mt-4 text-sm text-gray-600">
         الخطوة {currentStep} من {totalSteps}
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -1,13 +1,17 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Star, Users, Calendar } from 'lucide-react';
-import { Button } from './button';
+import { buttonVariants } from './button';
 import { motion } from 'framer-motion';
+import { content } from '@/content/ar';
+import { cn } from '@/lib/utils';
 
 interface CoachCardProps {
+  id: string;
   name: string;
-  rating: number;
+  rating?: number;
   subscribers: number;
   experience: number;
   price: number;
@@ -16,6 +20,7 @@ interface CoachCardProps {
 }
 
 export function CoachCard({
+  id,
   name,
   headline,
   rating,
@@ -50,10 +55,12 @@ export function CoachCard({
       </div>
 
       <div className="flex items-center gap-4 mb-4 text-sm">
-        <div className="flex items-center gap-1.5 text-amber-500">
-          <Star className="w-4 h-4 fill-current" />
-          <span className="font-semibold text-gray-900">{rating}</span>
-        </div>
+        {typeof rating === 'number' && (
+          <div className="flex items-center gap-1.5 text-amber-500">
+            <Star className="w-4 h-4 fill-current" />
+            <span className="font-semibold text-gray-900">{rating}</span>
+          </div>
+        )}
         
         {subscribers > 0 && (
           <div className="flex items-center gap-1.5 text-gray-600">
@@ -77,15 +84,12 @@ export function CoachCard({
           </p>
         </div>
         
-        <Button
-          size="sm"
-          className="shadow-md"
-          onClick={() => {
-            document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' });
-          }}
+        <Link
+          href={`/coaches/${id}`}
+          className={cn(buttonVariants({ size: 'sm' }), 'shadow-md')}
         >
-          شوف التفاصيل
-        </Button>
+          {content.coaches.seeDetails}
+        </Link>
       </div>
 
       <div className="absolute top-4 left-4 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold">
