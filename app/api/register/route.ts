@@ -6,15 +6,11 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     // Log FormData contents for debugging
-    console.log('=== FormData Contents ===');
     for (const [key, value] of formData.entries()) {
       if (value instanceof File) {
-        console.log(`${key}: [File] ${value.name} (${value.size} bytes, ${value.type})`);
       } else {
-        console.log(`${key}: ${value}`);
       }
     }
-    console.log('========================');
 
     // Forward the request to the backend
     const controller = new AbortController();

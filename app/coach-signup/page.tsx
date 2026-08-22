@@ -281,7 +281,7 @@ export default function CoachSignupPage() {
               الشروط والأحكام
             </a>{' '}
             و{' '}
-            <a href="#" className="text-primary hover:underline">
+            <a href="/privacy" className="text-primary hover:underline">
               سياسة الخصوصية
             </a>
           </p>

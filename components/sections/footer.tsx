@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { content } from '@/content/ar';
 import { Twitter, Instagram, Facebook, Mail, Phone } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export function Footer() {
   return (
@@ -58,12 +59,12 @@ export function Footer() {
             <h4 className="font-bold mb-4">روابط مهمة</h4>
             <ul className="space-y-2">
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/privacy"
                   className="text-gray-400 hover:text-primary transition-colors"
                 >
                   {content.footer.links.privacy}
-                </a>
+                </Link>
               </li>
               <li>
                 <a

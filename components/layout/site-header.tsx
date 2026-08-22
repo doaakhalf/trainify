@@ -13,6 +13,7 @@ const navItems = [
   { href: '/', labelKey: 'home' as const },
   { href: '/coaches', labelKey: 'coaches' as const },
   { href: '/coach-signup', labelKey: 'forCoaches' as const },
+  { href: '/privacy', labelKey: 'privacy' as const },
 ];
 
 export function SiteHeader() {
