@@ -90,10 +90,15 @@ export function buildCoachSignupFormData(data: CoachSignupFormData): FormData {
   return form;
 }
 
+export const MAX_IMAGE_SIZE_MB = 10;
+
 /**
- * Validate file size (max 5MB)
+ * Validate file size (max 10MB by default)
  */
-export function validateFileSize(file: File, maxSizeMB: number = 5): boolean {
+export function validateFileSize(
+  file: File,
+  maxSizeMB: number = MAX_IMAGE_SIZE_MB
+): boolean {
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   return file.size <= maxSizeBytes;
 }
@@ -120,7 +125,7 @@ export function validateFile(file: File): { valid: boolean; error?: string } {
   if (!validateFileSize(file)) {
     return {
       valid: false,
-      error: 'Image file is too large. Maximum size is 5MB',
+      error: `Image file is too large. Maximum size is ${MAX_IMAGE_SIZE_MB}MB`,
     };
   }
 

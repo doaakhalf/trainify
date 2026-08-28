@@ -109,7 +109,7 @@ export function ImagePicker({
                 اضغط لرفع صورة
               </p>
               <p className="text-xs text-gray-500">
-                JPEG, PNG, WebP, GIF (حد أقصى 5MB)
+                JPEG, PNG, WebP, GIF (حد أقصى 10MB)
               </p>
             </div>
           </div>
