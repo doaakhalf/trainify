@@ -6,7 +6,6 @@ import { getActiveCoaches } from '@/lib/api';
 import { Footer } from '@/components/sections/footer';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: content.coachesPage.title,

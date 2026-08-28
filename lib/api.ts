@@ -117,7 +117,7 @@ export async function getActiveCoaches(): Promise<Coach[]> {
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     const response = await fetch(`${API_BASE}/api/coaches?status=active`, {
-      next: { revalidate: 3600 },
+      cache: 'no-store',
       signal: controller.signal,
     });
 
