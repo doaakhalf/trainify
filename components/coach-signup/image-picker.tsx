@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 import { validateFile } from '@/lib/utils/form-data-builder';
@@ -25,6 +25,25 @@ export function ImagePicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Keep the preview when the parent step unmounts and mounts again.
+  useEffect(() => {
+    if (!value) {
+      setPreview(null);
+      return;
+    }
+
+    let cancelled = false;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (!cancelled) setPreview(reader.result as string);
+    };
+    reader.readAsDataURL(value);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [value]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,7 +128,7 @@ export function ImagePicker({
                 اضغط لرفع صورة
               </p>
               <p className="text-xs text-gray-500">
-                JPEG, PNG, WebP, GIF (حد أقصى 10MB)
+                أي صيغة صورة ما عدا GIF (حد أقصى 10MB)
               </p>
             </div>
           </div>
@@ -119,7 +138,7 @@ export function ImagePicker({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+        accept="image/*"
         onChange={handleFileSelect}
         className="hidden"
       />

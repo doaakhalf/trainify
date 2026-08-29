@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { ImagePicker } from './image-picker';
 import { GalleryPicker } from './gallery-picker';
-import type { UseFormRegister, FieldErrors } from 'react-hook-form';
+import type { UseFormRegister, FieldErrors, UseFormWatch } from 'react-hook-form';
 import type { CoachSignupFormData } from '@/types/coach-signup';
 
 interface Step1PersonalInfoProps {
   register: UseFormRegister<CoachSignupFormData>;
+  watch: UseFormWatch<CoachSignupFormData>;
   errors: FieldErrors<CoachSignupFormData>;
   profileImage: File | null;
   setProfileImage: (file: File | null) => void;
@@ -18,6 +19,7 @@ interface Step1PersonalInfoProps {
 
 export function Step1PersonalInfo({
   register,
+  watch,
   errors,
   profileImage,
   setProfileImage,
@@ -26,6 +28,10 @@ export function Step1PersonalInfo({
 }: Step1PersonalInfoProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const headline = watch('headline') || '';
+  const trainingExperience = watch('trainingExperience') || '';
+  const introduction = watch('introduction') || '';
+  const motivation = watch('motivation') || '';
 
   return (
     <div className="space-y-6">
@@ -144,8 +150,15 @@ export function Step1PersonalInfo({
         </label>
         <input
           type="tel"
-          {...register('phoneNumber')}
+          {...register('phoneNumber', {
+            required: 'رقم الهاتف مطلوب',
+            pattern: {
+              value: /^01[0125][0-9]{8}$/,
+              message: 'أدخل رقم هاتف مصري صحيح يبدأ بـ 010 أو 011 أو 012 أو 015',
+            },
+          })}
           placeholder="01012345678"
+          maxLength={11}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           dir="ltr"
         />
@@ -218,13 +231,21 @@ export function Step1PersonalInfo({
         </label>
         <input
           type="text"
-          {...register('headline')}
+          {...register('headline', {
+            required: 'العنوان التعريفي مطلوب',
+            maxLength: {
+              value: 30,
+              message: 'العنوان التعريفي يجب ألا يتجاوز 30 حرفاً',
+            },
+          })}
           placeholder="مدرب كمال أجسام محترف"
+          maxLength={30}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
         />
         {errors.headline && (
           <p className="mt-1 text-sm text-red-600">{errors.headline.message}</p>
         )}
+        <p className="mt-1 text-xs text-gray-500">{headline.length}/30</p>
       </div>
 
       {/* Training Experience */}
@@ -233,14 +254,22 @@ export function Step1PersonalInfo({
           خبرة التدريب <span className="text-red-500">*</span>
         </label>
         <textarea
-          {...register('trainingExperience')}
+          {...register('trainingExperience', {
+            required: 'خبرة التدريب مطلوبة',
+            maxLength: {
+              value: 350,
+              message: 'خبرة التدريب يجب ألا تتجاوز 350 حرفاً',
+            },
+          })}
           placeholder="متخصص في تدريب القوة وبناء العضلات..."
           rows={3}
+          maxLength={350}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
         />
         {errors.trainingExperience && (
           <p className="mt-1 text-sm text-red-600">{errors.trainingExperience.message}</p>
         )}
+        <p className="mt-1 text-xs text-gray-500">{trainingExperience.length}/350</p>
       </div>
 
       {/* Introduction */}
@@ -249,14 +278,22 @@ export function Step1PersonalInfo({
           نبذة تعريفية <span className="text-red-500">*</span>
         </label>
         <textarea
-          {...register('introduction')}
+          {...register('introduction', {
+            required: 'النبذة التعريفية مطلوبة',
+            maxLength: {
+              value: 350,
+              message: 'النبذة التعريفية يجب ألا تتجاوز 350 حرفاً',
+            },
+          })}
           placeholder="مدرب معتمد مع 5 سنوات من الخبرة..."
           rows={4}
+          maxLength={350}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
         />
         {errors.introduction && (
           <p className="mt-1 text-sm text-red-600">{errors.introduction.message}</p>
         )}
+        <p className="mt-1 text-xs text-gray-500">{introduction.length}/350</p>
       </div>
 
       {/* Motivation */}
@@ -265,14 +302,22 @@ export function Step1PersonalInfo({
           أسلوب التدريب <span className="text-red-500">*</span>
         </label>
         <textarea
-          {...register('motivation')}
+          {...register('motivation', {
+            required: 'أسلوب التدريب مطلوب',
+            maxLength: {
+              value: 350,
+              message: 'أسلوب التدريب يجب ألا يتجاوز 350 حرفاً',
+            },
+          })}
           placeholder="نهج يركز على النتائج مع خطط مخصصة..."
           rows={3}
+          maxLength={350}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
         />
         {errors.motivation && (
           <p className="mt-1 text-sm text-red-600">{errors.motivation.message}</p>
         )}
+        <p className="mt-1 text-xs text-gray-500">{motivation.length}/350</p>
       </div>
 
       {/* Gallery Images */}

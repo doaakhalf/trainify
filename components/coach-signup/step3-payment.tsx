@@ -41,7 +41,16 @@ export function Step3Payment({
         <div className="relative">
           <input
             type="number"
-            {...register('monthlyPriceEgp', { valueAsNumber: true })}
+            {...register('monthlyPriceEgp', {
+              valueAsNumber: true,
+              required: 'السعر الشهري مطلوب',
+              min: {
+                value: 1,
+                message: 'السعر الشهري يجب أن يكون أكبر من 0',
+              },
+              validate: (value) =>
+                Number.isInteger(value) || 'السعر الشهري يجب أن يكون رقماً صحيحاً بدون كسور',
+            })}
             placeholder="1500"
             min="1"
             step="1"
@@ -54,6 +63,7 @@ export function Step3Payment({
         {errors.monthlyPriceEgp && (
           <p className="mt-1 text-sm text-red-600">{errors.monthlyPriceEgp.message}</p>
         )}
+        <p className="mt-1 text-xs text-gray-500">أدخل السعر بالجنيه المصري بدون كسور</p>
       </div>
 
       {/* Platform Fee Notice */}
@@ -112,7 +122,13 @@ export function Step3Payment({
           </label>
           <input
             type="tel"
-            {...register('walletNumber')}
+            {...register('walletNumber', {
+              required: 'رقم محفظة فودافون كاش مطلوب',
+              pattern: {
+                value: /^01[0125][0-9]{8}$/,
+                message: 'أدخل رقم هاتف مصري صحيح يبدأ بـ 010 أو 011 أو 012 أو 015',
+              },
+            })}
             placeholder="01012345678"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             dir="ltr"

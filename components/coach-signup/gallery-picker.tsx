@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import Image from 'next/image';
 import { validateFile } from '@/lib/utils/form-data-builder';
@@ -15,12 +15,42 @@ interface GalleryPickerProps {
 export function GalleryPicker({
   value,
   onChange,
-  maxImages = 10,
+  maxImages = 5,
   error,
 }: GalleryPickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [previews, setPreviews] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Rebuild previews when returning to this step; the selected File objects
+  // live in the parent while this component is unmounted between steps.
+  useEffect(() => {
+    if (value.length === 0) {
+      setPreviews([]);
+      return;
+    }
+
+    let cancelled = false;
+    const nextPreviews = new Array<string>(value.length).fill('');
+    let loadedCount = 0;
+
+    value.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (cancelled) return;
+        nextPreviews[index] = reader.result as string;
+        loadedCount += 1;
+        if (loadedCount === value.length) {
+          setPreviews(nextPreviews);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [value]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -46,17 +76,6 @@ export function GalleryPicker({
     setValidationError(null);
     const newFiles = [...value, ...validFiles];
     onChange(newFiles);
-
-    // Create previews
-    const newPreviews = [...previews];
-    validFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        newPreviews.push(reader.result as string);
-        setPreviews([...newPreviews]);
-      };
-      reader.readAsDataURL(file);
-    });
 
     // Reset input
     if (inputRef.current) {
@@ -121,7 +140,7 @@ export function GalleryPicker({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+        accept="image/*"
         multiple
         onChange={handleFileSelect}
         className="hidden"

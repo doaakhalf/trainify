@@ -7,7 +7,14 @@ const egyptianPhoneRegex = /^01[0-9]{9}$/;
 const instapayLinkRegex = /^https?:\/\/(www\.)?ipn\.eg\/S\/[A-Za-z0-9._-]+\/instapay\/[A-Za-z0-9_-]+\/?$/i;
 
 // File validation helper
-const fileSchema = z.instanceof(File).nullable();
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+const fileSchema = z
+  .instanceof(File)
+  .nullable()
+  .refine(
+    (file) => file === null || file.size <= MAX_IMAGE_SIZE_BYTES,
+    'Image file is too large. Maximum size is 10MB'
+  );
 
 // Step 1: Personal Information Schema
 export const personalInfoSchema = z.object({
@@ -16,15 +23,35 @@ export const personalInfoSchema = z.object({
   confirmPassword: z.string(),
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  phoneNumber: z.string().regex(egyptianPhoneRegex, 'Please enter a valid Egyptian phone number (01xxxxxxxxx)'),
+  phoneNumber: z
+    .string()
+    .regex(
+      /^01[0125][0-9]{8}$/,
+      'Please enter a valid Egyptian phone number (010, 011, 012, or 015)'
+    ),
   gender: z.enum(['male', 'female'], { message: 'Gender is required' }),
-  yearOfExperience: z.number().min(0, 'Years of experience must be 0 or greater'),
+  yearOfExperience: z
+    .number()
+    .int('Years of experience must be a whole number')
+    .min(0, 'Years of experience must be 0 or greater'),
   profileImage: fileSchema.refine((file) => file !== null, 'Profile image is required'),
-  headline: z.string().min(1, 'Headline is required'),
-  trainingExperience: z.string().min(1, 'Training experience is required'),
-  introduction: z.string().min(1, 'Introduction is required'),
-  motivation: z.string().min(1, 'Training style is required'),
-  galleryImages: z.array(fileSchema).max(10, 'Maximum 10 gallery images allowed'),
+  headline: z
+    .string()
+    .min(1, 'Headline is required')
+    .max(30, 'Headline must be 30 characters or less'),
+  trainingExperience: z
+    .string()
+    .min(1, 'Training experience is required')
+    .max(350, 'Training experience must be 350 characters or less'),
+  introduction: z
+    .string()
+    .min(1, 'Introduction is required')
+    .max(350, 'Introduction must be 350 characters or less'),
+  motivation: z
+    .string()
+    .min(1, 'Training style is required')
+    .max(350, 'Training style must be 350 characters or less'),
+  galleryImages: z.array(fileSchema).max(5, 'Maximum 5 gallery images allowed'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
@@ -45,7 +72,10 @@ export const achievementsSchema = z.object({
 
 // Step 3: Payment Information Schema
 export const paymentInfoSchema = z.object({
-  monthlyPriceEgp: z.number().min(1, 'السعر الشهري يجب أن يكون أكبر من 0'),
+  monthlyPriceEgp: z
+    .number()
+    .int('السعر الشهري يجب أن يكون رقماً صحيحاً بدون كسور')
+    .min(1, 'السعر الشهري يجب أن يكون أكبر من 0'),
   paymentMethod: z.enum(['instapay', 'vodafone'], { message: 'طريقة الدفع مطلوبة' }),
   instapayLink: z.string().optional(),
   walletNumber: z.string().optional(),

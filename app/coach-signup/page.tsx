@@ -72,8 +72,8 @@ export default function CoachSignupPage() {
       }
 
       // Validate gallery images count
-      if (galleryImages.length > 10) {
-        setApiError('الحد الأقصى 10 صور للمعرض');
+      if (galleryImages.length > 5) {
+        setApiError('الحد الأقصى 5 صور للمعرض');
         return;
       }
     } else if (currentStep === 2) {
@@ -199,6 +199,7 @@ export default function CoachSignupPage() {
             {currentStep === 1 && (
               <Step1PersonalInfo
                 register={register}
+                watch={watch}
                 errors={errors}
                 profileImage={profileImage}
                 setProfileImage={setProfileImage}

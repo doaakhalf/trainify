@@ -32,7 +32,7 @@ export function buildCoachSignupFormData(data: CoachSignupFormData): FormData {
     form.append('profileImage', data.profileImage);
   }
 
-  // Gallery images (optional, max 10)
+  // Gallery images (optional, max 5)
   if (data.galleryImages && data.galleryImages.length > 0) {
     data.galleryImages.forEach((file) => {
       if (file) {
@@ -107,8 +107,7 @@ export function validateFileSize(
  * Validate file type (images only)
  */
 export function validateFileType(file: File): boolean {
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-  return allowedTypes.includes(file.type);
+  return file.type.startsWith('image/') && file.type !== 'image/gif';
 }
 
 /**
@@ -118,7 +117,7 @@ export function validateFile(file: File): { valid: boolean; error?: string } {
   if (!validateFileType(file)) {
     return {
       valid: false,
-      error: 'Only JPEG, PNG, WebP, and GIF images are allowed',
+      error: 'All image formats are allowed except GIF',
     };
   }
 
