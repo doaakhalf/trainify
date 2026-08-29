@@ -151,10 +151,10 @@ export function Step1PersonalInfo({
         <input
           type="tel"
           {...register('phoneNumber', {
-            required: 'رقم الهاتف مطلوب',
+            required: 'هذا الحقل مطلوب',
             pattern: {
               value: /^01[0125][0-9]{8}$/,
-              message: 'أدخل رقم هاتف مصري صحيح يبدأ بـ 010 أو 011 أو 012 أو 015',
+              message: 'يرجى إدخال رقم هاتف مصري صحيح (010/011/012/015)',
             },
           })}
           placeholder="01012345678"

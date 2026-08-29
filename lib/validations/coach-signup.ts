@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // Egyptian phone number regex
-const egyptianPhoneRegex = /^01[0-9]{9}$/;
+const egyptianPhoneRegex = /^01[0125][0-9]{8}$/;
 
 // Instapay link regex
 const instapayLinkRegex = /^https?:\/\/(www\.)?ipn\.eg\/S\/[A-Za-z0-9._-]+\/instapay\/[A-Za-z0-9_-]+\/?$/i;
@@ -25,10 +25,7 @@ export const personalInfoSchema = z.object({
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
   phoneNumber: z
     .string()
-    .regex(
-      /^01[0125][0-9]{8}$/,
-      'Please enter a valid Egyptian phone number (010, 011, 012, or 015)'
-    ),
+    .regex(egyptianPhoneRegex, 'يرجى إدخال رقم هاتف مصري صحيح (010/011/012/015)'),
   gender: z.enum(['male', 'female'], { message: 'Gender is required' }),
   yearOfExperience: z
     .number()
@@ -51,7 +48,7 @@ export const personalInfoSchema = z.object({
     .string()
     .min(1, 'Training style is required')
     .max(350, 'Training style must be 350 characters or less'),
-  galleryImages: z.array(fileSchema).max(5, 'Maximum 5 gallery images allowed'),
+  galleryImages: z.array(fileSchema).max(10, 'Maximum 10 gallery images allowed'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
@@ -74,8 +71,8 @@ export const achievementsSchema = z.object({
 export const paymentInfoSchema = z.object({
   monthlyPriceEgp: z
     .number()
-    .int('السعر الشهري يجب أن يكون رقماً صحيحاً بدون كسور')
-    .min(1, 'السعر الشهري يجب أن يكون أكبر من 0'),
+    .int('أدخل سعراً صحيحاً بدون كسور')
+    .min(1, 'السعر الشهري مطلوب'),
   paymentMethod: z.enum(['instapay', 'vodafone'], { message: 'طريقة الدفع مطلوبة' }),
   instapayLink: z.string().optional(),
   walletNumber: z.string().optional(),
@@ -92,14 +89,16 @@ export const paymentInfoSchema = z.object({
   path: ['instapayLink'],
 }).refine((data) => {
   if (data.paymentMethod === 'vodafone') {
-    if (!data.walletNumber) {
-      return false;
-    }
-    return egyptianPhoneRegex.test(data.walletNumber);
+    return !data.walletNumber || egyptianPhoneRegex.test(data.walletNumber);
   }
   return true;
 }, {
-  message: 'رقم محفظة فودافون كاش غير صحيح (01xxxxxxxxx)',
+  message: 'يرجى إدخال رقم هاتف مصري صحيح (010/011/012/015)',
+  path: ['walletNumber'],
+}).refine((data) => {
+  return data.paymentMethod !== 'vodafone' || Boolean(data.walletNumber);
+}, {
+  message: 'هذا الحقل مطلوب',
   path: ['walletNumber'],
 });
 

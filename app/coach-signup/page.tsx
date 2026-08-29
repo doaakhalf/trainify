@@ -72,8 +72,8 @@ export default function CoachSignupPage() {
       }
 
       // Validate gallery images count
-      if (galleryImages.length > 5) {
-        setApiError('الحد الأقصى 5 صور للمعرض');
+      if (galleryImages.length > 10) {
+        setApiError('الحد الأقصى 10 صور للمعرض');
         return;
       }
     } else if (currentStep === 2) {
@@ -116,7 +116,7 @@ export default function CoachSignupPage() {
     try {
       // Validate Step 3 fields
       if (!data.monthlyPriceEgp || data.monthlyPriceEgp <= 0) {
-        setApiError('السعر الشهري مطلوب ويجب أن يكون أكبر من 0');
+        setApiError('السعر الشهري مطلوب');
         setIsSubmitting(false);
         return;
       }

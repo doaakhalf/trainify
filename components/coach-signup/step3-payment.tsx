@@ -46,10 +46,10 @@ export function Step3Payment({
               required: 'السعر الشهري مطلوب',
               min: {
                 value: 1,
-                message: 'السعر الشهري يجب أن يكون أكبر من 0',
+                message: 'السعر الشهري مطلوب',
               },
               validate: (value) =>
-                Number.isInteger(value) || 'السعر الشهري يجب أن يكون رقماً صحيحاً بدون كسور',
+                Number.isInteger(value) || 'أدخل سعراً صحيحاً بدون كسور',
             })}
             placeholder="1500"
             min="1"
@@ -123,13 +123,15 @@ export function Step3Payment({
           <input
             type="tel"
             {...register('walletNumber', {
-              required: 'رقم محفظة فودافون كاش مطلوب',
+              required: 'هذا الحقل مطلوب',
               pattern: {
                 value: /^01[0125][0-9]{8}$/,
-                message: 'أدخل رقم هاتف مصري صحيح يبدأ بـ 010 أو 011 أو 012 أو 015',
+                message: 'يرجى إدخال رقم هاتف مصري صحيح (010/011/012/015)',
               },
             })}
             placeholder="01012345678"
+            maxLength={11}
+            inputMode="numeric"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             dir="ltr"
           />

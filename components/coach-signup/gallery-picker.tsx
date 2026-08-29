@@ -15,7 +15,7 @@ interface GalleryPickerProps {
 export function GalleryPicker({
   value,
   onChange,
-  maxImages = 5,
+  maxImages = 10,
   error,
 }: GalleryPickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);

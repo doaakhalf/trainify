@@ -32,7 +32,7 @@ export function buildCoachSignupFormData(data: CoachSignupFormData): FormData {
     form.append('profileImage', data.profileImage);
   }
 
-  // Gallery images (optional, max 5)
+  // Gallery images (optional, max 10)
   if (data.galleryImages && data.galleryImages.length > 0) {
     data.galleryImages.forEach((file) => {
       if (file) {
