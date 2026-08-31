@@ -51,7 +51,13 @@ export function Step1PersonalInfo({
         </label>
         <input
           type="email"
-          {...register('email')}
+          {...register('email', {
+            required: 'البريد الإلكتروني مطلوب',
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: 'يرجى إدخال بريد إلكتروني صحيح',
+            },
+          })}
           placeholder="coach@example.com"
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
         />
@@ -102,7 +108,11 @@ export function Step1PersonalInfo({
         <div className="relative">
           <input
             type={showConfirmPassword ? 'text' : 'password'}
-            {...register('confirmPassword')}
+            {...register('confirmPassword', {
+              required: 'تأكيد كلمة المرور مطلوب',
+              validate: (value) =>
+                value === watch('password') || 'كلمتا المرور غير متطابقتين',
+            })}
             placeholder="••••••••"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
@@ -127,7 +137,13 @@ export function Step1PersonalInfo({
           </label>
           <input
             type="text"
-            {...register('firstName')}
+            {...register('firstName', {
+              required: 'الاسم الأول مطلوب',
+              minLength: {
+                value: 2,
+                message: 'الاسم الأول يجب أن يكون حرفين على الأقل',
+              },
+            })}
             placeholder="أحمد"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
@@ -142,7 +158,13 @@ export function Step1PersonalInfo({
           </label>
           <input
             type="text"
-            {...register('lastName')}
+            {...register('lastName', {
+              required: 'اسم العائلة مطلوب',
+              minLength: {
+                value: 2,
+                message: 'اسم العائلة يجب أن يكون حرفين على الأقل',
+              },
+            })}
             placeholder="محمد"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
@@ -186,7 +208,9 @@ export function Step1PersonalInfo({
           <label className="flex items-center justify-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5">
             <input
               type="radio"
-              {...register('gender')}
+              {...register('gender', {
+                required: 'النوع مطلوب',
+              })}
               value="male"
               className="sr-only"
             />
@@ -195,7 +219,9 @@ export function Step1PersonalInfo({
           <label className="flex items-center justify-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5">
             <input
               type="radio"
-              {...register('gender')}
+            {...register('gender', {
+              required: 'النوع مطلوب',
+            })}
               value="female"
               className="sr-only"
             />
@@ -214,7 +240,16 @@ export function Step1PersonalInfo({
         </label>
         <input
           type="number"
-          {...register('yearOfExperience', { valueAsNumber: true })}
+          {...register('yearOfExperience', {
+            valueAsNumber: true,
+            required: 'سنوات الخبرة مطلوبة',
+            min: {
+              value: 0,
+              message: 'سنوات الخبرة يجب أن تكون 0 أو أكثر',
+            },
+            validate: (value) =>
+              Number.isInteger(value) || 'سنوات الخبرة يجب أن تكون رقماً صحيحاً',
+          })}
           placeholder="5"
           min="0"
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"

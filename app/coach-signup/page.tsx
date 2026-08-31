@@ -41,7 +41,7 @@ export default function CoachSignupPage() {
     mode: 'onTouched', // Only validate after user touches field
     defaultValues: {
       gender: '',
-      yearOfExperience: 0,
+      yearOfExperience: undefined,
       monthlyPriceEgp: 0,
       paymentMethod: 'instapay',
     },
@@ -197,13 +197,6 @@ export default function CoachSignupPage() {
 
         {/* Form */}
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-          {/* API Error */}
-          {apiError && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-800 whitespace-pre-line">{apiError}</p>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Step Content */}
             {currentStep === 1 && (
@@ -235,6 +228,13 @@ export default function CoachSignupPage() {
                 paymentMethod={paymentMethod}
                 setPaymentMethod={setPaymentMethod}
               />
+            )}
+
+            {/* Form-level error shown directly above navigation */}
+            {apiError && (
+              <div className="mt-8 bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-sm text-red-800 whitespace-pre-line">{apiError}</p>
+              </div>
             )}
 
             {/* Navigation Buttons */}
