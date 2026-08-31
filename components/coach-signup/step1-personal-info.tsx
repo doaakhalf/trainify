@@ -68,7 +68,13 @@ export function Step1PersonalInfo({
         <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
-            {...register('password')}
+            {...register('password', {
+              required: 'كلمة المرور مطلوبة',
+              minLength: {
+                value: 8,
+                message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
+              },
+            })}
             placeholder="••••••••"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
@@ -83,6 +89,9 @@ export function Step1PersonalInfo({
         {errors.password && (
           <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
         )}
+        <p className="mt-1 text-xs text-gray-500">
+          يجب أن تكون كلمة المرور 8 أحرف على الأقل
+        </p>
       </div>
 
       {/* Confirm Password */}

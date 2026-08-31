@@ -35,6 +35,7 @@ export default function CoachSignupPage() {
     handleSubmit,
     watch,
     trigger,
+    setError,
     formState: { errors },
   } = useForm<any>({
     mode: 'onTouched', // Only validate after user touches field
@@ -156,6 +157,15 @@ export default function CoachSignupPage() {
             .map(([field, message]) => getErrorMessage(field, message))
             .join('\n');
           setApiError(errorMessages);
+          Object.entries(result.errors).forEach(([field, message]) => {
+            setError(field, {
+              type: 'server',
+              message,
+            });
+          });
+          if (result.errors.password) {
+            setCurrentStep(1);
+          }
         } else {
           setApiError(result.message || 'حدث خطأ أثناء التسجيل');
         }
