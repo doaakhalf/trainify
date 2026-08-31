@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Loader2, X, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
-import { validateFile } from '@/lib/utils/form-data-builder';
+import { prepareImageForUpload } from '@/lib/utils/image-processing';
 
 interface ImagePickerProps {
   label: string;
@@ -25,6 +25,7 @@ export function ImagePicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Keep the preview when the parent step unmounts and mounts again.
   useEffect(() => {
@@ -45,26 +46,21 @@ export function ImagePicker({
     };
   }, [value]);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file
-    const validation = validateFile(file);
-    if (!validation.valid) {
-      setValidationError(validation.error || 'Invalid file');
-      return;
-    }
-
     setValidationError(null);
-    onChange(file);
-
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    setIsProcessing(true);
+    try {
+      const preparedFile = await prepareImageForUpload(file, 'profile');
+      onChange(preparedFile);
+    } catch (error) {
+      setValidationError(error instanceof Error ? error.message : 'Unable to process the selected image');
+    } finally {
+      setIsProcessing(false);
+      e.target.value = '';
+    }
   };
 
   const handleRemove = () => {
@@ -77,6 +73,7 @@ export function ImagePicker({
   };
 
   const handleClick = () => {
+    if (isProcessing) return;
     inputRef.current?.click();
   };
 
@@ -88,6 +85,7 @@ export function ImagePicker({
 
       <div
         onClick={!preview ? handleClick : undefined}
+        aria-busy={isProcessing}
         className={`
           relative border-2 border-dashed rounded-lg overflow-hidden
           transition-all cursor-pointer
@@ -128,7 +126,14 @@ export function ImagePicker({
                 اضغط لرفع صورة
               </p>
               <p className="text-xs text-gray-500">
-                أي صيغة صورة ما عدا GIF (حد أقصى 10MB)
+                {isProcessing ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    جار تجهيز الصورة...
+                  </span>
+                ) : (
+                  'HEIC وHEIF مسموحان، ما عدا GIF (الحد النهائي 10MB)'
+                )}
               </p>
             </div>
           </div>
@@ -138,8 +143,9 @@ export function ImagePicker({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         onChange={handleFileSelect}
+        disabled={isProcessing}
         className="hidden"
       />
 

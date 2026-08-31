@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { PaymentMethodSelector } from './payment-method-selector';
 import type { UseFormRegister, FieldErrors, UseFormWatch } from 'react-hook-form';
@@ -21,6 +22,50 @@ export function Step3Payment({
   setPaymentMethod,
 }: Step3PaymentProps) {
   const monthlyPrice = watch('monthlyPriceEgp');
+  const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null);
+  const [calculatingPrice, setCalculatingPrice] = useState(false);
+
+  useEffect(() => {
+    if (!monthlyPrice || Number.isNaN(monthlyPrice) || monthlyPrice <= 0) {
+      setCalculatedPrice(null);
+      setCalculatingPrice(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setCalculatingPrice(true);
+      try {
+        const response = await fetch('/api/calculate-percentage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ price: monthlyPrice }),
+          signal: controller.signal,
+        });
+        const result = await response.json();
+
+        const calculated = Number(result.price);
+        if (response.ok && result.message === 'success' && Number.isFinite(calculated)) {
+          setCalculatedPrice(calculated);
+        } else {
+          setCalculatedPrice(null);
+        }
+      } catch {
+        if (!controller.signal.aborted) {
+          setCalculatedPrice(null);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setCalculatingPrice(false);
+        }
+      }
+    }, 300);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [monthlyPrice]);
 
   return (
     <div className="space-y-6">
@@ -66,25 +111,24 @@ export function Step3Payment({
         <p className="mt-1 text-xs text-gray-500">أدخل السعر بالجنيه المصري بدون كسور</p>
       </div>
 
-      {/* Platform Fee Notice */}
-      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-        <div className="flex gap-3">
-          <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h4 className="font-semibold text-orange-900 mb-1">
-              رسوم المنصة
-            </h4>
-            <p className="text-sm text-orange-800">
-              سيتم تطبيق نسبة المنصة تلقائياً. السعر النهائي الذي سيراه اللاعبون سيتم حسابه من قبل النظام.
-            </p>
-            {monthlyPrice > 0 && (
-              <p className="text-sm text-orange-800 mt-2">
-                <span className="font-semibold">السعر المدخل:</span> {monthlyPrice} ج.م
-              </p>
-            )}
-          </div>
+      {/* Show calculated price with percentage */}
+      {calculatingPrice && (
+        <div className="bg-primary/5 border-l-4 border-primary p-4 rounded-lg mb-6">
+          <p className="text-sm text-gray-500 italic">جاري حساب السعر بعد النسبة...</p>
         </div>
-      </div>
+      )}
+
+      {calculatedPrice !== null && !calculatingPrice && (
+        <div className="bg-primary/5 border-l-4 border-primary p-4 rounded-lg mb-6">
+          <p className="text-sm text-gray-500 mb-1">السعر بعد نسبة التطبيق:</p>
+          <p className="text-xl font-bold text-primary mb-1">
+            {calculatedPrice} ج.م
+          </p>
+          <p className="text-xs text-gray-400 italic">
+            هذا هو السعر الذي سيظهر للرياضيون بينما المبلغ الذي أدخلته بالأعلى هو المبلغ الذي ستحصل عليه كمدرب. قد يتغير السعر المعروض للرياضيين حسب نسبة التطبيق.
+          </p>
+        </div>
+      )}
 
       {/* Payment Method */}
       <PaymentMethodSelector

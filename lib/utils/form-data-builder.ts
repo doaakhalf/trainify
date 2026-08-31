@@ -107,7 +107,23 @@ export function validateFileSize(
  * Validate file type (images only)
  */
 export function validateFileType(file: File): boolean {
-  return file.type.startsWith('image/') && file.type !== 'image/gif';
+  const extension = file.name.split('.').pop()?.toLowerCase() || '';
+  const isGif =
+    file.type.toLowerCase() === 'image/gif' || extension === 'gif';
+  const knownImageExtension = [
+    'avif',
+    'bmp',
+    'heic',
+    'heif',
+    'jpeg',
+    'jpg',
+    'png',
+    'tif',
+    'tiff',
+    'webp',
+  ].includes(extension);
+
+  return !isGif && (file.type.toLowerCase().startsWith('image/') || knownImageExtension);
 }
 
 /**

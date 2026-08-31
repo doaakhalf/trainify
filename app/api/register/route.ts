@@ -1,15 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const MAX_REGISTER_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_REGISTER_REQUEST_BYTES = 25 * 1024 * 1024;
+
 export async function POST(request: NextRequest) {
   try {
     // Get the FormData from the request
     const formData = await request.formData();
 
-    // Log FormData contents for debugging
-    for (const [key, value] of formData.entries()) {
+    // Keep the per-file ceiling separate from the total request ceiling.
+    // Ten processed gallery images can legitimately be sent together.
+    let totalFileBytes = 0;
+    for (const value of formData.values()) {
       if (value instanceof File) {
-      } else {
+        if (value.size > MAX_REGISTER_FILE_BYTES) {
+          return NextResponse.json(
+            { success: false, message: 'An uploaded image exceeds the 10MB limit' },
+            { status: 413 }
+          );
+        }
+        totalFileBytes += value.size;
       }
+    }
+
+    if (totalFileBytes > MAX_REGISTER_REQUEST_BYTES) {
+      return NextResponse.json(
+        { success: false, message: 'The total uploaded images exceed the 25MB request limit' },
+        { status: 413 }
+      );
     }
 
     // Forward the request to the backend

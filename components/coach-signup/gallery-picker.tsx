@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Plus, X } from 'lucide-react';
+import { Loader2, Plus, X } from 'lucide-react';
 import Image from 'next/image';
-import { validateFile } from '@/lib/utils/form-data-builder';
+import { prepareImageForUpload } from '@/lib/utils/image-processing';
 
 interface GalleryPickerProps {
   value: File[];
@@ -21,6 +21,7 @@ export function GalleryPicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const [previews, setPreviews] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Rebuild previews when returning to this step; the selected File objects
   // live in the parent while this component is unmounted between steps.
@@ -52,7 +53,7 @@ export function GalleryPicker({
     };
   }, [value]);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
@@ -62,24 +63,20 @@ export function GalleryPicker({
       return;
     }
 
-    // Validate all files
-    const validFiles: File[] = [];
-    for (const file of files) {
-      const validation = validateFile(file);
-      if (!validation.valid) {
-        setValidationError(validation.error || 'Invalid file');
-        return;
-      }
-      validFiles.push(file);
-    }
-
     setValidationError(null);
-    const newFiles = [...value, ...validFiles];
-    onChange(newFiles);
-
-    // Reset input
-    if (inputRef.current) {
-      inputRef.current.value = '';
+    setIsProcessing(true);
+    try {
+      const preparedFiles: File[] = [];
+      // Process sequentially to avoid decoding ten large phone images at once.
+      for (const file of files) {
+        preparedFiles.push(await prepareImageForUpload(file, 'gallery'));
+      }
+      onChange([...value, ...preparedFiles]);
+    } catch (error) {
+      setValidationError(error instanceof Error ? error.message : 'Unable to process the selected images');
+    } finally {
+      setIsProcessing(false);
+      e.target.value = '';
     }
   };
 
@@ -92,6 +89,7 @@ export function GalleryPicker({
   };
 
   const handleClick = () => {
+    if (isProcessing) return;
     inputRef.current?.click();
   };
 
@@ -129,10 +127,14 @@ export function GalleryPicker({
           <button
             type="button"
             onClick={handleClick}
+            disabled={isProcessing}
             className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-primary transition-colors flex flex-col items-center justify-center text-gray-500 hover:text-primary"
           >
             <Plus className="w-8 h-8 mb-1" />
-            <span className="text-xs">إضافة صورة</span>
+            <span className="inline-flex items-center gap-1 text-xs">
+              {isProcessing && <Loader2 className="h-3 w-3 animate-spin" />}
+              {isProcessing ? 'جار تجهيز الصور...' : 'إضافة صورة'}
+            </span>
           </button>
         )}
       </div>
@@ -140,9 +142,10 @@ export function GalleryPicker({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         multiple
         onChange={handleFileSelect}
+        disabled={isProcessing}
         className="hidden"
       />
 
