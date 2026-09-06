@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { ImagePicker } from './image-picker';
 import { GalleryPicker } from './gallery-picker';
-import type { UseFormRegister, FieldErrors, UseFormWatch } from 'react-hook-form';
+import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormRegisterReturn } from 'react-hook-form';
 import type { CoachSignupFormData } from '@/types/coach-signup';
+import { stripArabicChars } from '@/lib/utils';
 
 interface Step1PersonalInfoProps {
   register: UseFormRegister<CoachSignupFormData>;
@@ -15,6 +16,16 @@ interface Step1PersonalInfoProps {
   setProfileImage: (file: File | null) => void;
   galleryImages: File[];
   setGalleryImages: (files: File[]) => void;
+}
+
+function withStripArabic(reg: UseFormRegisterReturn) {
+  return {
+    ...reg,
+    onChange: (e: ChangeEvent<HTMLInputElement>) => {
+      e.target.value = stripArabicChars(e.target.value);
+      return reg.onChange(e);
+    },
+  };
 }
 
 export function Step1PersonalInfo({
@@ -51,14 +62,20 @@ export function Step1PersonalInfo({
         </label>
         <input
           type="email"
-          {...register('email', {
-            required: 'البريد الإلكتروني مطلوب',
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'يرجى إدخال بريد إلكتروني صحيح',
-            },
-          })}
+          {...withStripArabic(
+            register('email', {
+              required: 'البريد الإلكتروني مطلوب',
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'يرجى إدخال بريد إلكتروني صحيح',
+              },
+              setValueAs: (v) => stripArabicChars(String(v ?? '')),
+            })
+          )}
           placeholder="coach@example.com"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
         />
         {errors.email && (
@@ -74,14 +91,20 @@ export function Step1PersonalInfo({
         <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
-            {...register('password', {
-              required: 'كلمة المرور مطلوبة',
-              minLength: {
-                value: 8,
-                message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
-              },
-            })}
+            {...withStripArabic(
+              register('password', {
+                required: 'كلمة المرور مطلوبة',
+                minLength: {
+                  value: 8,
+                  message: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
+                },
+                setValueAs: (v) => stripArabicChars(String(v ?? '')),
+              })
+            )}
             placeholder="••••••••"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           <button
@@ -108,12 +131,18 @@ export function Step1PersonalInfo({
         <div className="relative">
           <input
             type={showConfirmPassword ? 'text' : 'password'}
-            {...register('confirmPassword', {
-              required: 'تأكيد كلمة المرور مطلوب',
-              validate: (value) =>
-                value === watch('password') || 'كلمتا المرور غير متطابقتين',
-            })}
+            {...withStripArabic(
+              register('confirmPassword', {
+                required: 'تأكيد كلمة المرور مطلوب',
+                validate: (value) =>
+                  value === watch('password') || 'كلمتا المرور غير متطابقتين',
+                setValueAs: (v) => stripArabicChars(String(v ?? '')),
+              })
+            )}
             placeholder="••••••••"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
           <button
