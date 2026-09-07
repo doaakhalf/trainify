@@ -288,7 +288,7 @@ export default function CoachSignupPage() {
         <div className="text-center mt-8 text-sm text-gray-600">
           <p>
             بالتسجيل، أنت توافق على{' '}
-            <a href="#" className="text-primary hover:underline">
+            <a href="/terms" className="text-primary hover:underline">
               الشروط والأحكام
             </a>{' '}
             و{' '}

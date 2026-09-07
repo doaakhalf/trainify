@@ -67,12 +67,12 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/terms"
                   className="text-gray-400 hover:text-primary transition-colors"
                 >
                   {content.footer.links.terms}
-                </a>
+                </Link>
               </li>
               <li>
                 <a

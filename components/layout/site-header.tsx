@@ -14,6 +14,7 @@ const navItems = [
   { href: '/coaches', labelKey: 'coaches' as const },
   { href: '/coach-signup', labelKey: 'forCoaches' as const },
   { href: '/privacy', labelKey: 'privacy' as const },
+  { href: '/terms', labelKey: 'terms' as const },
 ];
 
 export function SiteHeader() {
