@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Search, SlidersHorizontal } from 'lucide-react';
 import { content } from '@/content/ar';
@@ -10,60 +10,164 @@ import {
   type CoachFiltersState,
 } from '@/components/coaches/coach-filters';
 import { CoachListCard } from '@/components/coaches/coach-list-card';
-import type { Coach } from '@/lib/api';
+import {
+  getActiveCoachesPage,
+  type Coach,
+  type CoachesListParams,
+} from '@/lib/api';
 
 interface CoachesDirectoryProps {
-  coaches: Coach[];
+  initialCoaches: Coach[];
+  initialHasMore?: boolean;
+  pageSize?: number;
 }
 
-function parseOptionalNumber(value: string): number | null {
-  if (!value.trim()) return null;
+function parseOptionalNumber(value: string): number | undefined {
+  if (!value.trim()) return undefined;
   const n = Number(value);
-  return Number.isFinite(n) ? n : null;
+  return Number.isFinite(n) ? n : undefined;
 }
 
-function applyFilters(
-  coaches: Coach[],
-  search: string,
-  filters: CoachFiltersState
-): Coach[] {
-  const query = search.trim().toLowerCase();
+function filtersToApiParams(
+  filters: CoachFiltersState,
+  searchQuery = ''
+): CoachesListParams {
+  const params: CoachesListParams = {};
+  if (filters.gender) params.gender = filters.gender;
+
+  const query = searchQuery.trim();
+  if (query) params.search = query;
+
   const minPrice = parseOptionalNumber(filters.minPrice);
   const maxPrice = parseOptionalNumber(filters.maxPrice);
   const minExp = parseOptionalNumber(filters.minExperience);
   const maxExp = parseOptionalNumber(filters.maxExperience);
 
-  return coaches.filter((coach) => {
-    if (filters.gender && coach.gender !== filters.gender) return false;
+  if (minPrice != null) params.minPrice = minPrice;
+  if (maxPrice != null) params.maxPrice = maxPrice;
+  if (minExp != null) params.minYearsOfExperience = minExp;
+  if (maxExp != null) params.maxYearsOfExperience = maxExp;
 
-    if (minPrice != null && (coach.price ?? 0) < minPrice) return false;
-    if (maxPrice != null && (coach.price ?? Infinity) > maxPrice) return false;
-
-    if (minExp != null && (coach.experience ?? 0) < minExp) return false;
-    if (maxExp != null && (coach.experience ?? Infinity) > maxExp) return false;
-
-    if (query) {
-      const haystack = `${coach.name} ${coach.headline || ''}`.toLowerCase();
-      if (!haystack.includes(query)) return false;
-    }
-
-    return true;
-  });
+  return params;
 }
 
-export function CoachesDirectory({ coaches }: CoachesDirectoryProps) {
+export function CoachesDirectory({
+  initialCoaches,
+  initialHasMore = false,
+  pageSize = 10,
+}: CoachesDirectoryProps) {
   const t = content.coachesPage;
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [draftFilters, setDraftFilters] =
     useState<CoachFiltersState>(defaultCoachFilters);
   const [appliedFilters, setAppliedFilters] =
     useState<CoachFiltersState>(defaultCoachFilters);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const filtered = useMemo(
-    () => applyFilters(coaches, search, appliedFilters),
-    [coaches, search, appliedFilters]
+  const [coaches, setCoaches] = useState<Coach[]>(initialCoaches);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(initialHasMore);
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const loadingLockRef = useRef(false);
+  const filtersRef = useRef(appliedFilters);
+  const searchRef = useRef(debouncedSearch);
+  const skipFirstQueryEffect = useRef(true);
+  filtersRef.current = appliedFilters;
+  searchRef.current = debouncedSearch;
+
+  // Debounce search typing
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [search]);
+
+  const fetchPage = useCallback(
+    async (
+      pageNum: number,
+      append: boolean,
+      filters: CoachFiltersState,
+      searchQuery: string
+    ) => {
+      if (loadingLockRef.current) return;
+      loadingLockRef.current = true;
+
+      try {
+        if (append) {
+          setLoadingMore(true);
+        } else {
+          setLoading(true);
+        }
+
+        const result = await getActiveCoachesPage({
+          status: 'active',
+          page: pageNum,
+          limit: pageSize,
+          ...filtersToApiParams(filters, searchQuery),
+        });
+
+        setCoaches((prev) =>
+          append
+            ? [
+                ...prev,
+                ...result.coaches.filter(
+                  (c) => !prev.some((p) => p._id === c._id)
+                ),
+              ]
+            : result.coaches
+        );
+        setHasMore(result.hasMore);
+        setPage(pageNum);
+      } catch (error) {
+        console.error('Error loading coaches:', error);
+        if (!append) {
+          setCoaches([]);
+          setHasMore(false);
+        }
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+        loadingLockRef.current = false;
+      }
+    },
+    [pageSize]
   );
+
+  // Refetch when filters or search change
+  useEffect(() => {
+    if (skipFirstQueryEffect.current) {
+      skipFirstQueryEffect.current = false;
+      return;
+    }
+    fetchPage(1, false, appliedFilters, debouncedSearch);
+  }, [appliedFilters, debouncedSearch, fetchPage]);
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || loadingMore || loading || loadingLockRef.current) return;
+    fetchPage(page + 1, true, filtersRef.current, searchRef.current);
+  }, [fetchPage, hasMore, loading, loadingMore, page]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMore();
+        }
+      },
+      { root: null, rootMargin: '400px 0px', threshold: 0 }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMore, loadMore, coaches.length]);
 
   const resetFilters = () => {
     setDraftFilters(defaultCoachFilters);
@@ -99,8 +203,6 @@ export function CoachesDirectory({ coaches }: CoachesDirectoryProps) {
           {t.backToHome}
         </Link>
 
-
-        {/* Mobile: search + filters button */}
         <div className="mb-5 flex gap-3 lg:hidden">
           <div className="flex-1">{searchInput}</div>
           <button
@@ -116,7 +218,7 @@ export function CoachesDirectory({ coaches }: CoachesDirectoryProps) {
           </button>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
+        <div className="grid gap-6 lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-8">
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-4">
               {searchInput}
@@ -130,14 +232,43 @@ export function CoachesDirectory({ coaches }: CoachesDirectoryProps) {
           </aside>
 
           <div className="space-y-4">
-            {filtered.length === 0 ? (
+            {loading && coaches.length === 0 ? (
+              <div className="flex justify-center py-16">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-primary" />
+              </div>
+            ) : coaches.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center text-gray-600">
                 {t.empty}
               </div>
             ) : (
-              filtered.map((coach) => (
-                <CoachListCard key={coach._id} coach={coach} />
-              ))
+              <>
+                {coaches.map((coach) => (
+                  <CoachListCard
+                    key={coach._id}
+                    coach={coach}
+                    coaches={coaches}
+                  />
+                ))}
+
+                {hasMore && (
+                  <div
+                    ref={loadMoreRef}
+                    className="flex flex-col items-center justify-center gap-3 py-8"
+                  >
+                    {loadingMore && (
+                      <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-primary" />
+                    )}
+                    <button
+                      type="button"
+                      onClick={loadMore}
+                      disabled={loadingMore}
+                      className="text-sm font-semibold text-primary hover:underline disabled:opacity-50"
+                    >
+                      عرض المزيد
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

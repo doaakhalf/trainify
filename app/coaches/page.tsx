@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { content } from '@/content/ar';
 import { SiteHeader } from '@/components/layout/site-header';
 import { CoachesDirectory } from '@/components/coaches/coaches-directory';
-import { getActiveCoaches } from '@/lib/api';
+import { getActiveCoachesPage } from '@/lib/api';
 import { Footer } from '@/components/sections/footer';
 
 export const dynamic = 'force-dynamic';
@@ -21,12 +21,21 @@ export const metadata: Metadata = {
 };
 
 export default async function CoachesPage() {
-  const coaches = await getActiveCoaches();
+  // Same as ProMax GuestCoachesScreen: first page only
+  const firstPage = await getActiveCoachesPage({
+    status: 'active',
+    page: 1,
+    limit: 10,
+  });
 
   return (
     <main>
       <SiteHeader />
-      <CoachesDirectory coaches={coaches} />
+      <CoachesDirectory
+        initialCoaches={firstPage.coaches}
+        initialHasMore={firstPage.hasMore}
+        pageSize={10}
+      />
       <Footer />
     </main>
   );

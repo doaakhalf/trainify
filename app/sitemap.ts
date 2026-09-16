@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getActiveCoaches } from '@/lib/api';
+import { getCoachPath } from '@/lib/coach-slug';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const coaches = await getActiveCoaches();
 
   const coachEntries: MetadataRoute.Sitemap = coaches.map((coach) => ({
-    url: `https://trainifypro.com/coaches/${coach._id}`,
+    url: `https://trainifypro.com${getCoachPath(coach, coaches)}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.7,

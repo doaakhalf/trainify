@@ -7,15 +7,17 @@ import { organizationSchema, softwareApplicationSchema, faqSchema, webPageSchema
 const alexandria = Alexandria({
   subsets: ['arabic'],
   variable: '--font-alexandria',
-  display: 'swap',
+  display: 'block',
   preload: true,
+  fallback: ['system-ui', 'arial'],
 });
 
 const cairo = Cairo({
   subsets: ['arabic'],
   variable: '--font-cairo',
-  display: 'swap',
+  display: 'block',
   preload: true,
+  fallback: ['system-ui', 'arial'],
 });
 
 export const metadata: Metadata = {

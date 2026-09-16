@@ -6,7 +6,9 @@ import { Star, Users, Calendar } from 'lucide-react';
 import { buttonVariants } from './button';
 import { motion } from 'framer-motion';
 import { content } from '@/content/ar';
+import { slugifyCoachName } from '@/lib/coach-slug';
 import { cn } from '@/lib/utils';
+import { CoachName } from '@/components/coaches/coach-name';
 
 interface CoachCardProps {
   id: string;
@@ -17,6 +19,7 @@ interface CoachCardProps {
   price: number;
   image: string;
   headline: string;
+  href?: string;
 }
 
 export function CoachCard({
@@ -28,8 +31,9 @@ export function CoachCard({
   experience,
   price,
   image,
+  href,
 }: CoachCardProps) {
-  const detailsHref = `/coaches/${id}`;
+  const detailsHref = href || `/coaches/${slugifyCoachName(name) || id}`;
 
   return (
     <Link href={detailsHref} className="block h-full">
@@ -52,7 +56,9 @@ export function CoachCard({
           </div>
           
           <div className="flex-1 min-w-0">
-            <h3 className="text-xl font-bold text-gray-900 mb-1">{name}</h3>
+            <h3 className="mb-1 text-xl font-bold text-gray-900">
+              <CoachName name={name} />
+            </h3>
             <p className="text-sm text-gray-600 leading-relaxed">{headline}</p>
           </div>
         </div>

@@ -3,22 +3,25 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Calendar, Star, Users } from 'lucide-react';
+import { Calendar, Star } from 'lucide-react';
 import { content } from '@/content/ar';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { openPrimaryStore } from '@/components/coaches/app-download-buttons';
 import type { Coach } from '@/lib/api';
 import { resolveImageUrl } from '@/lib/api';
+import { getCoachPath } from '@/lib/coach-slug';
 import { cn } from '@/lib/utils';
+import { CoachName } from '@/components/coaches/coach-name';
 
 interface CoachListCardProps {
   coach: Coach;
+  coaches?: Coach[];
 }
 
-export function CoachListCard({ coach }: CoachListCardProps) {
+export function CoachListCard({ coach, coaches = [] }: CoachListCardProps) {
   const router = useRouter();
   const t = content.coachesPage;
-  const detailsHref = `/coaches/${coach._id}`;
+  const detailsHref = getCoachPath(coach, coaches);
   const image = resolveImageUrl(coach.profileImage);
   const bio = coach.introduction?.trim();
   const snippet =
@@ -43,10 +46,20 @@ export function CoachListCard({ coach }: CoachListCardProps) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-lg font-bold text-gray-900">{coach.name}</h3>
+          <h3 className="truncate text-lg font-bold text-gray-900">
+            <CoachName name={coach.name} />
+          </h3>
           <p className="mt-1 line-clamp-2 text-sm text-gray-600">
             {coach.headline || 'مدرب معتمد'}
           </p>
+          {typeof coach.experience === 'number' && (
+            <div className="mt-2 flex items-center gap-1.5 text-sm text-gray-700">
+              <Calendar className="h-4 w-4 text-gray-500" />
+              <span>
+                {coach.experience} {t.experience}
+              </span>
+            </div>
+          )}
         </div>
 
         {typeof coach.price === 'number' && (
@@ -59,28 +72,12 @@ export function CoachListCard({ coach }: CoachListCardProps) {
         )}
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-gray-700">
-        {typeof coach.rating === 'number' && (
-          <div className="flex items-center gap-1.5">
-            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-            <span className="font-semibold">{coach.rating}</span>
-          </div>
-        )}
-        <div className="flex items-center gap-1.5">
-          <Users className="h-4 w-4 text-gray-500" />
-          <span>
-            {coach.subscribers ?? 0} {t.subscribers}
-          </span>
+      {typeof coach.rating === 'number' && (
+        <div className="mb-4 flex items-center gap-1.5 text-sm text-gray-700">
+          <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+          <span className="font-semibold">{coach.rating}</span>
         </div>
-        {typeof coach.experience === 'number' && (
-          <div className="flex items-center gap-1.5">
-            <Calendar className="h-4 w-4 text-gray-500" />
-            <span>
-              {coach.experience} {t.experience}
-            </span>
-          </div>
-        )}
-      </div>
+      )}
 
       {snippet && (
         <p className="mb-5 line-clamp-3 text-sm leading-relaxed text-gray-600">

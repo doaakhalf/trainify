@@ -70,8 +70,12 @@ function mapCoach(coach: Record<string, unknown>): Coach {
 
   return {
     _id: String(coach.id || coach._id || ''),
-    name: String(coach.name || ''),
-    profileImage: coach.profileImage ? String(coach.profileImage) : undefined,
+    name: String(coach.name || coach.coachName || ''),
+    profileImage: coach.profileImage
+      ? String(coach.profileImage)
+      : coach.profilePhoto
+        ? String(coach.profilePhoto)
+        : undefined,
     headline: coach.headline ? String(coach.headline) : undefined,
     price: typeof coach.price === 'number' ? coach.price : undefined,
     gender: coach.gender ? String(coach.gender) : undefined,
@@ -111,15 +115,62 @@ function mapCoach(coach: Record<string, unknown>): Coach {
   };
 }
 
-export async function getActiveCoaches(): Promise<Coach[]> {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+/** Same query shape as ProMax GuestCoachesScreen / getCoachesList. */
+export interface CoachesListParams {
+  page?: number;
+  limit?: number;
+  status?: string;
+  gender?: string;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minYearsOfExperience?: number;
+  maxYearsOfExperience?: number;
+}
 
-    const response = await fetch(`${API_BASE}/api/coaches?status=active`, {
-      cache: 'no-store',
-      signal: controller.signal,
-    });
+export interface CoachesListResult {
+  coaches: Coach[];
+  page: number;
+  limit: number;
+  hasMore: boolean;
+  totalPages?: number;
+  totalCoaches?: number;
+}
+
+export async function getActiveCoachesPage(
+  params: CoachesListParams = {}
+): Promise<CoachesListResult> {
+  const page = params.page ?? 1;
+  // API caps at 10 — keep in sync with ProMax GuestCoachesScreen
+  const limit = params.limit ?? 10;
+
+  try {
+    const searchParams = new URLSearchParams();
+    searchParams.set('status', params.status ?? 'active');
+    searchParams.set('page', String(page));
+    searchParams.set('limit', String(limit));
+
+    if (params.gender) searchParams.set('gender', params.gender);
+    if (params.search?.trim()) searchParams.set('search', params.search.trim());
+    if (params.minPrice != null) searchParams.set('minPrice', String(params.minPrice));
+    if (params.maxPrice != null) searchParams.set('maxPrice', String(params.maxPrice));
+    if (params.minYearsOfExperience != null) {
+      searchParams.set('minYearsOfExperience', String(params.minYearsOfExperience));
+    }
+    if (params.maxYearsOfExperience != null) {
+      searchParams.set('maxYearsOfExperience', String(params.maxYearsOfExperience));
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    const response = await fetch(
+      `${API_BASE}/api/coaches?${searchParams.toString()}`,
+      {
+        cache: 'no-store',
+        signal: controller.signal,
+      }
+    );
 
     clearTimeout(timeoutId);
 
@@ -128,16 +179,104 @@ export async function getActiveCoaches(): Promise<Coach[]> {
     }
 
     const data = await response.json();
-    const coaches = data.coaches || [];
+    const raw = data.coaches || data.data || [];
+    const coaches = (Array.isArray(raw) ? raw : []).map(
+      (coach: Record<string, unknown>) => mapCoach(coach)
+    );
 
-    return coaches.map((coach: Record<string, unknown>) => mapCoach(coach));
+    const pagination = (data.pagination || {}) as {
+      hasNextPage?: boolean;
+      totalPages?: number;
+      totalCoaches?: number;
+      currentPage?: number;
+      limit?: number;
+    };
+
+    const hasMore =
+      typeof pagination.hasNextPage === 'boolean'
+        ? pagination.hasNextPage
+        : coaches.length === limit;
+
+    return {
+      coaches,
+      page,
+      limit,
+      hasMore,
+      totalPages: pagination.totalPages,
+      totalCoaches: pagination.totalCoaches,
+    };
   } catch (error) {
-    console.error('Error fetching coaches:', error);
-    return [];
+    console.error('Error fetching coaches page:', error);
+    return { coaches: [], page, limit, hasMore: false };
   }
 }
 
+/** Aggregates all pages — for sitemap / home / coach slug lookup. */
+export async function getActiveCoaches(): Promise<Coach[]> {
+  const all: Coach[] = [];
+  const seen = new Set<string>();
+  let page = 1;
+  const limit = 10;
+
+  while (page <= 50) {
+    const result = await getActiveCoachesPage({ page, limit });
+    for (const coach of result.coaches) {
+      if (!coach._id || seen.has(coach._id)) continue;
+      seen.add(coach._id);
+      all.push(coach);
+    }
+    if (!result.hasMore || result.coaches.length === 0) break;
+    page += 1;
+  }
+
+  return all;
+}
+
 export async function getCoachById(id: string): Promise<Coach | null> {
-  const coaches = await getActiveCoaches();
-  return coaches.find((coach) => coach._id === id) ?? null;
+  const { coach } = await getCoachByParam(id);
+  return coach;
+}
+
+/**
+ * Resolve coach by Mongo id or name slug.
+ * Pages through the list API until the match is found (does not always load everyone).
+ */
+export async function getCoachByParam(param: string): Promise<{
+  coach: Coach | null;
+  coaches: Coach[];
+}> {
+  const { findCoachByParam, isCoachId } = await import('./coach-slug');
+  const decoded = decodeURIComponent(param || '').trim();
+  if (!decoded) return { coach: null, coaches: [] };
+
+  const collected: Coach[] = [];
+  const seen = new Set<string>();
+  let page = 1;
+  const limit = 10;
+
+  while (page <= 50) {
+    const result = await getActiveCoachesPage({ page, limit });
+
+    for (const coach of result.coaches) {
+      if (!coach._id || seen.has(coach._id)) continue;
+      seen.add(coach._id);
+      collected.push(coach);
+    }
+
+    // Fast path: id match as soon as that coach appears in a page
+    if (isCoachId(decoded)) {
+      const byId = collected.find((c) => c._id === decoded) ?? null;
+      if (byId) return { coach: byId, coaches: collected };
+    } else {
+      const match = findCoachByParam(collected, decoded);
+      // Prefer a hit once we have this page; if slug has a clash suffix we may
+      // need more pages for canonical resolution — keep going only if no match.
+      if (match) return { coach: match, coaches: collected };
+    }
+
+    if (!result.hasMore || result.coaches.length === 0) break;
+    page += 1;
+  }
+
+  return { coach: findCoachByParam(collected, decoded), coaches: collected };
 }

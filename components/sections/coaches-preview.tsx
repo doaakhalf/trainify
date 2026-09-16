@@ -9,6 +9,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import type { Coach } from '@/lib/api';
 import { resolveImageUrl } from '@/lib/api';
+import { getCoachPath } from '@/lib/coach-slug';
 import { cn } from '@/lib/utils';
 
 interface CoachesPreviewProps {
@@ -96,6 +97,14 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
                 experience={coach.experience}
                 price={coach.price}
                 image={coach.image}
+                href={
+                  apiCoaches
+                    ? getCoachPath(
+                        { _id: coach.id, name: coach.name },
+                        apiCoaches
+                      )
+                    : undefined
+                }
               />
             </motion.div>
           ))}
