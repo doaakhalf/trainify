@@ -4,6 +4,7 @@ import { SiteHeader } from '@/components/layout/site-header';
 import { CoachDetails } from '@/components/coaches/coach-details';
 import { Footer } from '@/components/sections/footer';
 import { getCoachByParam } from '@/lib/api';
+import { getCoachOgDescription, getCoachOgTitle } from '@/lib/coach-og';
 import { getCoachPath, getCoachSlug, isCoachId } from '@/lib/coach-slug';
 
 export const dynamic = 'force-dynamic';
@@ -24,11 +25,8 @@ export async function generateMetadata({
   }
 
   const path = getCoachPath(coach, coaches);
-  const title = `${coach.name}${coach.headline ? ` – ${coach.headline}` : ''}`;
-  const description =
-    coach.introduction?.slice(0, 160) ||
-    coach.headline ||
-    `تعرف على المدرب ${coach.name} على Trainify`;
+  const title = getCoachOgTitle(coach);
+  const description = getCoachOgDescription(coach);
 
   return {
     title,
@@ -37,12 +35,17 @@ export async function generateMetadata({
       canonical: `https://trainifypro.com${path}`,
     },
     openGraph: {
-      title: `${title} | Trainify`,
+      title,
       description,
       url: `https://trainifypro.com${path}`,
       siteName: 'Trainify',
       locale: 'ar_SA',
       type: 'profile',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
     },
   };
 }
