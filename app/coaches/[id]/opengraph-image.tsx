@@ -2,7 +2,11 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
 import { getCoachByParam, resolveImageUrl } from '@/lib/api';
-import { getCoachOgTitle, getCoachSpecialty } from '@/lib/coach-og';
+import {
+  getCoachOgDescription,
+  getCoachOgTitle,
+  getCoachSpecialty,
+} from '@/lib/coach-og';
 
 export const alt = 'مدرب على Trainify';
 export const size = { width: 1200, height: 630 };
@@ -12,48 +16,39 @@ async function loadAsset(relativePath: string) {
   return readFile(join(process.cwd(), relativePath));
 }
 
-async function toDataUri(url: string): Promise<string | null> {
-  try {
-    const response = await fetch(url, { next: { revalidate: 3600 } });
-    if (!response.ok) return null;
-    const buffer = Buffer.from(await response.arrayBuffer());
-    const contentType = response.headers.get('content-type') || 'image/jpeg';
-    return `data:${contentType};base64,${buffer.toString('base64')}`;
-  } catch {
-    return null;
-  }
-}
-
 export default async function Image({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [{ coach }, logoBuffer, fontBuffer, placeholderBuffer] = await Promise.all([
-    getCoachByParam(id),
-    loadAsset('public/logo.png'),
-    loadAsset('assets/fonts/Cairo-Bold.ttf'),
-    loadAsset('public/placeholder-coach.jpg'),
-  ]);
 
+  const [coachResult, logoBuffer, arabicFont, latinFont, placeholderBuffer] =
+    await Promise.all([
+      getCoachByParam(id).catch(() => ({ coach: null })),
+      loadAsset('public/icon-192.png'),
+      loadAsset('assets/fonts/Cairo-Arabic-Bold.woff'),
+      loadAsset('assets/fonts/Cairo-Latin-Bold.woff'),
+      loadAsset('public/placeholder-coach.jpg'),
+    ]);
+
+  const coach = coachResult.coach;
   const logoSrc = `data:image/png;base64,${logoBuffer.toString('base64')}`;
   const placeholderSrc = `data:image/jpeg;base64,${placeholderBuffer.toString('base64')}`;
 
   const title = coach ? getCoachOgTitle(coach) : 'Trainify';
-  const specialty = coach ? getCoachSpecialty(coach) : 'منصة التدريب';
   const name = coach?.name || 'Trainify';
+  const specialty = coach ? getCoachSpecialty(coach) : 'منصة التدريب';
+  const details = coach
+    ? getCoachOgDescription(coach)
+    : 'اشتراكك محمي من Trainify';
 
   let photoSrc = placeholderSrc;
   if (coach?.profileImage) {
     const absolute = resolveImageUrl(coach.profileImage);
-    const dataUri =
-      absolute.startsWith('http://') || absolute.startsWith('https://')
-        ? await toDataUri(absolute)
-        : absolute.startsWith('/')
-          ? `data:image/jpeg;base64,${(await loadAsset(`public${absolute}`)).toString('base64')}`
-          : null;
-    if (dataUri) photoSrc = dataUri;
+    if (absolute.startsWith('http://') || absolute.startsWith('https://')) {
+      photoSrc = absolute;
+    }
   }
 
   return new ImageResponse(
@@ -63,158 +58,85 @@ export default async function Image({
           width: '100%',
           height: '100%',
           display: 'flex',
-          flexDirection: 'row-reverse',
-          alignItems: 'stretch',
-          background: 'linear-gradient(135deg, #111827 0%, #1F2937 55%, #0F172A 100%)',
+          background: '#111827',
           fontFamily: 'Cairo',
-          position: 'relative',
-          overflow: 'hidden',
+          color: '#FFFFFF',
         }}
       >
+        {/* Coach photo — dominant */}
         <div
           style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'radial-gradient(circle at 20% 20%, rgba(249,115,22,0.28), transparent 45%), radial-gradient(circle at 85% 80%, rgba(249,115,22,0.18), transparent 40%)',
             display: 'flex',
-          }}
-        />
-
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '56px 64px',
+            width: 560,
+            height: '100%',
             position: 'relative',
-            zIndex: 1,
+            overflow: 'hidden',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <img
-              src={logoSrc}
-              width={72}
-              height={72}
-              alt="Trainify"
-              style={{
-                borderRadius: 14,
-                border: '1px solid rgba(0,0,0,0.35)',
-                objectFit: 'cover',
-              }}
-            />
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                color: '#F9FAFB',
-              }}
-            >
-              <span style={{ fontSize: 34, fontWeight: 700, lineHeight: 1.1 }}>Trainify</span>
-              <span style={{ fontSize: 20, color: '#FDBA74', marginTop: 4 }}>مدرب موثق</span>
-            </div>
-          </div>
-
+          <img
+            src={photoSrc}
+            width={560}
+            height={630}
+            alt={title}
+            style={{ objectFit: 'cover', width: 560, height: 630 }}
+          />
           <div
             style={{
+              position: 'absolute',
+              left: 20,
+              bottom: 20,
               display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-end',
-              textAlign: 'right',
-              direction: 'rtl',
-              gap: 14,
-              maxWidth: 620,
+              background: '#FFFFFF',
+              borderRadius: 10,
+              border: '1px solid #111827',
+              padding: 6,
             }}
           >
-            <div
-              style={{
-                fontSize: 56,
-                fontWeight: 700,
-                color: '#FFFFFF',
-                lineHeight: 1.2,
-              }}
-            >
-              {name}
-            </div>
-            <div
-              style={{
-                fontSize: 30,
-                color: '#FED7AA',
-                lineHeight: 1.35,
-              }}
-            >
-              {specialty}
-            </div>
-            <div
-              style={{
-                marginTop: 8,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                background: 'rgba(249,115,22,0.18)',
-                border: '1px solid rgba(249,115,22,0.45)',
-                borderRadius: 999,
-                padding: '12px 22px',
-                color: '#FFEDD5',
-                fontSize: 22,
-              }}
-            >
-              اشتراكك محمي من Trainify
-            </div>
+            <img src={logoSrc} width={44} height={44} alt="" style={{ borderRadius: 6 }} />
           </div>
         </div>
 
+        {/* Details */}
         <div
           style={{
-            width: 520,
             display: 'flex',
-            alignItems: 'center',
+            flexDirection: 'column',
             justifyContent: 'center',
-            padding: '48px 40px 48px 24px',
-            position: 'relative',
-            zIndex: 1,
+            width: 640,
+            height: '100%',
+            padding: '48px 52px',
+            background: '#111827',
           }}
         >
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 36 }}>
+            <img
+              src={logoSrc}
+              width={56}
+              height={56}
+              alt="Trainify"
+              style={{ borderRadius: 10, border: '1px solid #000000' }}
+            />
+            <div style={{ fontSize: 30, fontWeight: 700, marginLeft: 14 }}>Trainify</div>
+          </div>
+
+          <div style={{ fontSize: 48, fontWeight: 700, lineHeight: 1.2, marginBottom: 16 }}>
+            {name}
+          </div>
+          <div style={{ fontSize: 28, color: '#FED7AA', lineHeight: 1.35, marginBottom: 28 }}>
+            {specialty}
+          </div>
           <div
             style={{
-              width: 420,
-              height: 520,
-              borderRadius: 36,
-              overflow: 'hidden',
-              border: '4px solid rgba(249,115,22,0.55)',
-              boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
               display: 'flex',
-              position: 'relative',
+              background: '#EA580C',
+              borderRadius: 14,
+              padding: '16px 22px',
+              fontSize: 22,
+              color: '#FFF7ED',
+              lineHeight: 1.4,
             }}
           >
-            <img
-              src={photoSrc}
-              width={420}
-              height={520}
-              alt={title}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                left: 18,
-                bottom: 18,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'rgba(255,255,255,0.95)',
-                borderRadius: 12,
-                border: '1px solid #111827',
-                padding: 6,
-              }}
-            >
-              <img src={logoSrc} width={44} height={44} alt="" style={{ borderRadius: 8 }} />
-            </div>
+            {details}
           </div>
         </div>
       </div>
@@ -222,12 +144,8 @@ export default async function Image({
     {
       ...size,
       fonts: [
-        {
-          name: 'Cairo',
-          data: fontBuffer,
-          style: 'normal',
-          weight: 700,
-        },
+        { name: 'Cairo', data: arabicFont, style: 'normal', weight: 700 },
+        { name: 'Cairo', data: latinFont, style: 'normal', weight: 700 },
       ],
     }
   );

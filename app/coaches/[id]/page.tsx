@@ -27,6 +27,12 @@ export async function generateMetadata({
   const path = getCoachPath(coach, coaches);
   const title = getCoachOgTitle(coach);
   const description = getCoachOgDescription(coach);
+  const ogImage = {
+    url: `https://trainifypro.com${path}/opengraph-image`,
+    width: 1200,
+    height: 630,
+    alt: title,
+  };
 
   return {
     title,
@@ -40,12 +46,14 @@ export async function generateMetadata({
       url: `https://trainifypro.com${path}`,
       siteName: 'Trainify',
       locale: 'ar_SA',
-      type: 'profile',
+      type: 'website',
+      images: [ogImage],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: [ogImage.url],
     },
   };
 }
