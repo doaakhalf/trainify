@@ -58,7 +58,7 @@ export default async function Image({
           style={{
             width: 1200,
             height: 630,
-            objectFit: 'cover',
+            objectFit: 'contain',
           }}
         />
         <div
