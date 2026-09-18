@@ -23,6 +23,8 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
       return apiCoaches.map((coach) => ({
         id: coach._id,
         name: coach.name,
+        slug: coach.slug,
+        shareProfileUrl: coach.shareProfileUrl,
         image: resolveImageUrl(coach.profileImage),
         headline: coach.headline || 'مدرب معتمد',
         rating: coach.rating,
@@ -36,6 +38,8 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
     return content.coaches.items.map((item) => ({
       id: item.id,
       name: item.name,
+      slug: null as string | null,
+      shareProfileUrl: null as string | null,
       image: item.image,
       headline: item.headline,
       rating: item.rating,
@@ -100,7 +104,12 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
                 href={
                   apiCoaches
                     ? getCoachPath(
-                        { _id: coach.id, name: coach.name },
+                        {
+                          _id: coach.id,
+                          name: coach.name,
+                          slug: coach.slug,
+                          shareProfileUrl: coach.shareProfileUrl,
+                        },
                         apiCoaches
                       )
                     : undefined

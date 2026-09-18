@@ -18,6 +18,10 @@ export interface CoachCertificate {
 export interface Coach {
   _id: string;
   name: string;
+  /** Unique 8-char share code from API (a-z0-9). */
+  slug?: string | null;
+  /** Ready-to-share public profile URL from API. */
+  shareProfileUrl?: string | null;
   profileImage?: string;
   headline?: string;
   price?: number;
@@ -71,6 +75,11 @@ function mapCoach(coach: Record<string, unknown>): Coach {
   return {
     _id: String(coach.id || coach._id || ''),
     name: String(coach.name || coach.coachName || ''),
+    slug: coach.slug != null && coach.slug !== '' ? String(coach.slug) : null,
+    shareProfileUrl:
+      coach.shareProfileUrl != null && coach.shareProfileUrl !== ''
+        ? String(coach.shareProfileUrl)
+        : null,
     profileImage: coach.profileImage
       ? String(coach.profileImage)
       : coach.profilePhoto
@@ -238,14 +247,14 @@ export async function getCoachById(id: string): Promise<Coach | null> {
 }
 
 /**
- * Resolve coach by Mongo id or name slug.
+ * Resolve coach by unique share slug, Mongo id, or legacy name slug.
  * Pages through the list API until the match is found (does not always load everyone).
  */
 export async function getCoachByParam(param: string): Promise<{
   coach: Coach | null;
   coaches: Coach[];
 }> {
-  const { findCoachByParam, isCoachId } = await import('./coach-slug');
+  const { extractUniqueSlug, findCoachByParam, isCoachId } = await import('./coach-slug');
   const decoded = decodeURIComponent(param || '').trim();
   if (!decoded) return { coach: null, coaches: [] };
 
@@ -253,6 +262,7 @@ export async function getCoachByParam(param: string): Promise<{
   const seen = new Set<string>();
   let page = 1;
   const limit = 10;
+  const uniqueSlug = extractUniqueSlug(decoded);
 
   while (page <= 50) {
     const result = await getActiveCoachesPage({ page, limit });
@@ -263,14 +273,15 @@ export async function getCoachByParam(param: string): Promise<{
       collected.push(coach);
     }
 
-    // Fast path: id match as soon as that coach appears in a page
     if (isCoachId(decoded)) {
       const byId = collected.find((c) => c._id === decoded) ?? null;
       if (byId) return { coach: byId, coaches: collected };
+    } else if (uniqueSlug) {
+      const bySlug =
+        collected.find((c) => c.slug && c.slug.toLowerCase() === uniqueSlug) ?? null;
+      if (bySlug) return { coach: bySlug, coaches: collected };
     } else {
       const match = findCoachByParam(collected, decoded);
-      // Prefer a hit once we have this page; if slug has a clash suffix we may
-      // need more pages for canonical resolution — keep going only if no match.
       if (match) return { coach: match, coaches: collected };
     }
 

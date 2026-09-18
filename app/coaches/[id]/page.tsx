@@ -5,7 +5,7 @@ import { CoachDetails } from '@/components/coaches/coach-details';
 import { Footer } from '@/components/sections/footer';
 import { getCoachByParam } from '@/lib/api';
 import { getCoachOgDescription, getCoachOgTitle } from '@/lib/coach-og';
-import { getCoachPath, getCoachSlug, isCoachId } from '@/lib/coach-slug';
+import { getCoachPath, getCoachSlug } from '@/lib/coach-slug';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
@@ -67,7 +67,8 @@ export default async function CoachDetailsPage({ params }: CoachDetailsPageProps
   }
 
   const canonicalSlug = getCoachSlug(coach, coaches);
-  if (isCoachId(id) && canonicalSlug !== id) {
+  const current = decodeURIComponent(id || '').trim();
+  if (canonicalSlug && current.toLowerCase() !== canonicalSlug.toLowerCase()) {
     redirect(`/coaches/${canonicalSlug}`);
   }
 
