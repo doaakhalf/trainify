@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { content } from '@/content/ar';
@@ -13,55 +13,30 @@ import { getCoachPath } from '@/lib/coach-slug';
 import { cn } from '@/lib/utils';
 
 interface CoachesPreviewProps {
-  selectedGoal?: string | null;
   coaches?: Coach[];
 }
 
-export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPreviewProps) {
-  const initialCoaches = useMemo(() => {
-    if (apiCoaches && apiCoaches.length > 0) {
-      return apiCoaches.map((coach) => ({
-        id: coach._id,
-        name: coach.name,
-        slug: coach.slug,
-        shareProfileUrl: coach.shareProfileUrl,
-        image: resolveImageUrl(coach.profileImage),
-        headline: coach.headline || 'مدرب معتمد',
-        rating: coach.rating,
-        experience: coach.experience || 0,
-        price: coach.price || 0,
-        goals: [] as string[],
-        subscribers: coach.subscribers || 0,
-      }));
-    }
+export function CoachesPreview({ coaches: apiCoaches }: CoachesPreviewProps) {
+  const coaches = useMemo(() => {
+    if (!apiCoaches || apiCoaches.length === 0) return [];
 
-    return content.coaches.items.map((item) => ({
-      id: item.id,
-      name: item.name,
-      slug: null as string | null,
-      shareProfileUrl: null as string | null,
-      image: item.image,
-      headline: item.headline,
-      rating: item.rating,
-      experience: item.experience,
-      price: item.price,
-      goals: item.goals,
-      subscribers: item.subscribers,
+    return apiCoaches.map((coach) => ({
+      id: coach._id,
+      name: coach.name,
+      slug: coach.slug,
+      shareProfileUrl: coach.shareProfileUrl,
+      image: resolveImageUrl(coach.profileImage),
+      headline: coach.headline || 'مدرب معتمد',
+      rating: coach.rating,
+      experience: coach.experience || 0,
+      price: coach.price || 0,
+      subscribers: coach.subscribers || 0,
     }));
   }, [apiCoaches]);
 
-  const [filteredCoaches, setFilteredCoaches] = useState(initialCoaches);
-
-  useEffect(() => {
-    if (selectedGoal) {
-      const filtered = initialCoaches.filter((coach) =>
-        coach.goals.includes(selectedGoal)
-      );
-      setFilteredCoaches(filtered.length > 0 ? filtered : initialCoaches);
-    } else {
-      setFilteredCoaches(initialCoaches);
-    }
-  }, [selectedGoal, initialCoaches]);
+  if (coaches.length === 0) {
+    return null;
+  }
 
   return (
     <section id="coaches-preview" className="py-20 lg:py-32 bg-gradient-to-b from-white to-gray-50/50">
@@ -76,15 +51,10 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             {content.coaches.title}
           </h2>
-          {selectedGoal && filteredCoaches.length < initialCoaches.length && (
-            <p className="text-lg text-gray-600">
-              المدربين المتخصصين في هدفك
-            </p>
-          )}
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {filteredCoaches.map((coach, index) => (
+          {coaches.map((coach, index) => (
             <motion.div
               key={coach.id}
               initial={{ opacity: 0, y: 30 }}
@@ -101,19 +71,15 @@ export function CoachesPreview({ selectedGoal, coaches: apiCoaches }: CoachesPre
                 experience={coach.experience}
                 price={coach.price}
                 image={coach.image}
-                href={
+                href={getCoachPath(
+                  {
+                    _id: coach.id,
+                    name: coach.name,
+                    slug: coach.slug,
+                    shareProfileUrl: coach.shareProfileUrl,
+                  },
                   apiCoaches
-                    ? getCoachPath(
-                        {
-                          _id: coach.id,
-                          name: coach.name,
-                          slug: coach.slug,
-                          shareProfileUrl: coach.shareProfileUrl,
-                        },
-                        apiCoaches
-                      )
-                    : undefined
-                }
+                )}
               />
             </motion.div>
           ))}

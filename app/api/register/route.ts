@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getClientApiHeaders } from '@/lib/client-api-key';
 
 const MAX_REGISTER_FILE_BYTES = 10 * 1024 * 1024;
 const MAX_REGISTER_REQUEST_BYTES = 25 * 1024 * 1024;
@@ -38,6 +39,7 @@ export async function POST(request: NextRequest) {
       'https://promax-node-production-7c35.up.railway.app/api/register',
       {
         method: 'POST',
+        headers: getClientApiHeaders(),
         body: formData,
         signal: controller.signal,
       }

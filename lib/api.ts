@@ -1,3 +1,5 @@
+import { getClientApiHeaders } from './client-api-key';
+
 const API_BASE = 'https://promax-node-production-7c35.up.railway.app';
 
 export interface CoachAchievement {
@@ -124,7 +126,7 @@ function mapCoach(coach: Record<string, unknown>): Coach {
   };
 }
 
-/** Same query shape as ProMax GuestCoachesScreen / getCoachesList. */
+/** Public guest list — GET /api/coaches (same as ProMax GuestCoachesScreen). */
 export interface CoachesListParams {
   page?: number;
   limit?: number;
@@ -178,6 +180,7 @@ export async function getActiveCoachesPage(
       {
         cache: 'no-store',
         signal: controller.signal,
+        headers: getClientApiHeaders(),
       }
     );
 

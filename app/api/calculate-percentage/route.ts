@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getClientApiHeaders } from '@/lib/client-api-key';
 
 const CALCULATE_PERCENTAGE_URL =
   'https://promax-node-production-7c35.up.railway.app/api/calculate-percentage';
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     const response = await fetch(CALCULATE_PERCENTAGE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getClientApiHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ price }),
       cache: 'no-store',
     });
