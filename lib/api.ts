@@ -137,6 +137,7 @@ export interface CoachesListParams {
   maxPrice?: number;
   minYearsOfExperience?: number;
   maxYearsOfExperience?: number;
+  signal?: AbortSignal;
 }
 
 export interface CoachesListResult {
@@ -171,19 +172,22 @@ export async function getActiveCoachesPage(
       searchParams.set('maxYearsOfExperience', String(params.maxYearsOfExperience));
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => timeoutController.abort(), 8000);
+    const onExternalAbort = () => timeoutController.abort();
+    params.signal?.addEventListener('abort', onExternalAbort);
 
     const response = await fetch(
       `${API_BASE}/api/coaches?status=active&${searchParams.toString()}`,
       {
         cache: 'no-store',
-        signal: controller.signal,
+        signal: timeoutController.signal,
         headers: getClientApiHeaders(),
       }
     );
 
     clearTimeout(timeoutId);
+    params.signal?.removeEventListener('abort', onExternalAbort);
 
     if (!response.ok) {
       throw new Error('Failed to fetch coaches');
@@ -217,6 +221,12 @@ export async function getActiveCoachesPage(
       totalCoaches: pagination.totalCoaches,
     };
   } catch (error) {
+    if (
+      (error instanceof DOMException && error.name === 'AbortError') ||
+      (error instanceof Error && error.name === 'AbortError')
+    ) {
+      throw error;
+    }
     console.error('Error fetching coaches page:', error);
     return { coaches: [], page, limit, hasMore: false };
   }

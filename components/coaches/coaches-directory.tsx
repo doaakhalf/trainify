@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { ArrowRight, Search, SlidersHorizontal } from 'lucide-react';
 import { content } from '@/content/ar';
 import {
@@ -55,6 +55,13 @@ function filtersToApiParams(
   return params;
 }
 
+function isAbortError(error: unknown): boolean {
+  return (
+    (error instanceof DOMException && error.name === 'AbortError') ||
+    (error instanceof Error && error.name === 'AbortError')
+  );
+}
+
 export function CoachesDirectory({
   initialCoaches,
   initialHasMore = false,
@@ -63,7 +70,6 @@ export function CoachesDirectory({
   pageSize = 10,
 }: CoachesDirectoryProps) {
   const t = content.coachesPage;
-  const router = useRouter();
   const pathname = usePathname();
 
   const [search, setSearch] = useState(initialSearch);
@@ -71,6 +77,8 @@ export function CoachesDirectory({
   const [draftFilters, setDraftFilters] =
     useState<CoachFiltersState>(initialFilters);
   const [appliedFilters, setAppliedFilters] =
+    useState<CoachFiltersState>(initialFilters);
+  const [debouncedFilters, setDebouncedFilters] =
     useState<CoachFiltersState>(initialFilters);
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -81,25 +89,24 @@ export function CoachesDirectory({
   const [loadingMore, setLoadingMore] = useState(false);
 
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const loadingLockRef = useRef(false);
-  const filtersRef = useRef(appliedFilters);
+  const filtersRef = useRef(debouncedFilters);
   const searchRef = useRef(debouncedSearch);
+  const abortRef = useRef<AbortController | null>(null);
   const skipFirstQueryEffect = useRef(true);
-  filtersRef.current = appliedFilters;
+  filtersRef.current = debouncedFilters;
   searchRef.current = debouncedSearch;
 
   const syncUrl = useCallback(
     (filters: CoachFiltersState, searchQuery: string) => {
+      if (typeof window === 'undefined') return;
       const qs = serializeCoachListQuery(filters, searchQuery);
       const next = qs ? `${pathname}?${qs}` : pathname;
-      const current =
-        typeof window !== 'undefined'
-          ? `${window.location.pathname}${window.location.search}`
-          : '';
+      const current = `${window.location.pathname}${window.location.search}`;
       if (current === next) return;
-      router.replace(next, { scroll: false });
+      // History API avoids Next.js RSC soft-nav (_rsc) fighting client fetches.
+      window.history.replaceState(window.history.state, '', next);
     },
-    [pathname, router]
+    [pathname]
   );
 
   // Debounce search typing
@@ -110,6 +117,14 @@ export function CoachesDirectory({
     return () => window.clearTimeout(timer);
   }, [search]);
 
+  // Debounce sidebar filter inputs (min/max) so we fetch the final values
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedFilters(appliedFilters);
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [appliedFilters]);
+
   const fetchPage = useCallback(
     async (
       pageNum: number,
@@ -117,8 +132,9 @@ export function CoachesDirectory({
       filters: CoachFiltersState,
       searchQuery: string
     ) => {
-      if (loadingLockRef.current) return;
-      loadingLockRef.current = true;
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
 
       try {
         if (append) {
@@ -130,8 +146,11 @@ export function CoachesDirectory({
         const result = await getActiveCoachesPage({
           page: pageNum,
           limit: pageSize,
+          signal: controller.signal,
           ...filtersToApiParams(filters, searchQuery),
         });
+
+        if (controller.signal.aborted) return;
 
         setCoaches((prev) =>
           append
@@ -146,33 +165,35 @@ export function CoachesDirectory({
         setHasMore(result.hasMore);
         setPage(pageNum);
       } catch (error) {
+        if (isAbortError(error) || controller.signal.aborted) return;
         console.error('Error loading coaches:', error);
         if (!append) {
           setCoaches([]);
           setHasMore(false);
         }
       } finally {
-        setLoading(false);
-        setLoadingMore(false);
-        loadingLockRef.current = false;
+        if (!controller.signal.aborted) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
       }
     },
     [pageSize]
   );
 
-  // Refetch + sync URL when filters or search change
+  // Refetch + sync URL when debounced filters or search change
   useEffect(() => {
     if (skipFirstQueryEffect.current) {
       skipFirstQueryEffect.current = false;
-      syncUrl(appliedFilters, debouncedSearch);
+      syncUrl(debouncedFilters, debouncedSearch);
       return;
     }
-    syncUrl(appliedFilters, debouncedSearch);
-    fetchPage(1, false, appliedFilters, debouncedSearch);
-  }, [appliedFilters, debouncedSearch, fetchPage, syncUrl]);
+    syncUrl(debouncedFilters, debouncedSearch);
+    fetchPage(1, false, debouncedFilters, debouncedSearch);
+  }, [debouncedFilters, debouncedSearch, fetchPage, syncUrl]);
 
   const loadMore = useCallback(() => {
-    if (!hasMore || loadingMore || loading || loadingLockRef.current) return;
+    if (!hasMore || loadingMore || loading) return;
     fetchPage(page + 1, true, filtersRef.current, searchRef.current);
   }, [fetchPage, hasMore, loading, loadingMore, page]);
 
@@ -193,13 +214,19 @@ export function CoachesDirectory({
     return () => observer.disconnect();
   }, [hasMore, loadMore, coaches.length]);
 
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
+
   const resetFilters = () => {
     setDraftFilters(defaultCoachFilters);
     setAppliedFilters(defaultCoachFilters);
+    setDebouncedFilters(defaultCoachFilters);
   };
 
   const applySheetFilters = () => {
     setAppliedFilters(draftFilters);
+    setDebouncedFilters(draftFilters);
     setSheetOpen(false);
   };
 
@@ -256,7 +283,7 @@ export function CoachesDirectory({
           </aside>
 
           <div className="space-y-4">
-            {loading && coaches.length === 0 ? (
+            {loading ? (
               <div className="flex justify-center py-16">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-primary" />
               </div>
