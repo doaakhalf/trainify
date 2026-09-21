@@ -1,7 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, type ReactNode } from 'react';
+import Link from 'next/link';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -17,6 +18,7 @@ import {
 } from '@/components/coaches/app-download-buttons';
 import type { Coach } from '@/lib/api';
 import { resolveImageUrl } from '@/lib/api';
+import { getCoachesListUrl } from '@/lib/coaches-list-url';
 import { CoachName } from '@/components/coaches/coach-name';
 
 interface CoachDetailsProps {
@@ -78,11 +80,24 @@ export function CoachDetails({ coach }: CoachDetailsProps) {
   const image = resolveImageUrl(coach.profileImage);
   const gallery = coach.galleryImages.filter(Boolean);
   const [activeGallery, setActiveGallery] = useState(0);
+  const [coachesListHref, setCoachesListHref] = useState('/coaches');
+
+  useEffect(() => {
+    setCoachesListHref(getCoachesListUrl('/coaches'));
+  }, []);
 
   return (
     <div className="relative overflow-hidden bg-[#FFF7F1]">
       {/* Desktop width unchanged (lg:w-[70%]). Mobile/tablet get safer padding. */}
       <div className="relative z-10 mx-auto w-full max-w-[100%] px-4 pb-12 pt-5 sm:px-6 sm:pb-14 sm:pt-6 md:w-[90%] md:px-0 lg:w-[70%] lg:pb-20 lg:pt-10">
+        <Link
+          href={coachesListHref}
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-colors hover:text-primary"
+        >
+          <ArrowRight className="h-4 w-4" />
+          {t.backToCoaches}
+        </Link>
+
         <WhiteWidget className="lg:p-8" showEndLogo={false}>
           {/* —— Mobile / tablet only: compact layout —— */}
           <div className="lg:hidden">

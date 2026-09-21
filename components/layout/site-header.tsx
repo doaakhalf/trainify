@@ -1,32 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { content } from '@/content/ar';
 import { buttonVariants } from '@/components/ui/button';
+import { getCoachesListUrl } from '@/lib/coaches-list-url';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/', labelKey: 'home' as const },
-  { href: '/coaches', labelKey: 'coaches' as const },
-  { href: '/coach-signup', labelKey: 'forCoaches' as const },
-  { href: '/privacy', labelKey: 'privacy' as const },
-  { href: '/terms', labelKey: 'terms' as const },
+  { href: '/', labelKey: 'home' as const, resolveHref: () => '/' },
+  {
+    href: '/coaches',
+    labelKey: 'coaches' as const,
+    resolveHref: () => getCoachesListUrl('/coaches'),
+  },
+  {
+    href: '/coach-signup',
+    labelKey: 'forCoaches' as const,
+    resolveHref: () => '/coach-signup',
+  },
+  { href: '/privacy', labelKey: 'privacy' as const, resolveHref: () => '/privacy' },
+  { href: '/terms', labelKey: 'terms' as const, resolveHref: () => '/terms' },
 ];
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [coachesHref, setCoachesHref] = useState('/coaches');
   const t = content.header;
+
+  useEffect(() => {
+    setCoachesHref(getCoachesListUrl('/coaches'));
+  }, [pathname]);
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
     if (href.startsWith('/#')) return pathname === '/';
     return pathname === href || pathname.startsWith(`${href}/`);
   };
+
+  const hrefFor = (item: (typeof navItems)[number]) =>
+    item.href === '/coaches' ? coachesHref : item.resolveHref();
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-100/80 bg-white/90 backdrop-blur-md">
@@ -53,7 +70,7 @@ export function SiteHeader() {
           {navItems.map((item) => (
             <Link
               key={item.href}
-              href={item.href}
+              href={hrefFor(item)}
               className={cn(
                 'rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                 isActive(item.href)
@@ -92,7 +109,7 @@ export function SiteHeader() {
             {navItems.map((item) => (
               <Link
                 key={item.href}
-                href={item.href}
+                href={hrefFor(item)}
                 onClick={() => setOpen(false)}
                 className={cn(
                   'rounded-xl px-3 py-3 text-sm font-medium',

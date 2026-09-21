@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ArrowRight, Search, SlidersHorizontal } from 'lucide-react';
 import { content } from '@/content/ar';
 import {
@@ -11,6 +11,7 @@ import {
   type CoachFiltersState,
 } from '@/components/coaches/coach-filters';
 import { serializeCoachListQuery } from '@/lib/coach-list-query';
+import { saveCoachesListUrl } from '@/lib/coaches-list-url';
 import { CoachListCard } from '@/components/coaches/coach-list-card';
 import {
   getActiveCoachesPage,
@@ -70,6 +71,7 @@ export function CoachesDirectory({
   pageSize = 10,
 }: CoachesDirectoryProps) {
   const t = content.coachesPage;
+  const router = useRouter();
   const pathname = usePathname();
 
   const [search, setSearch] = useState(initialSearch);
@@ -98,15 +100,19 @@ export function CoachesDirectory({
 
   const syncUrl = useCallback(
     (filters: CoachFiltersState, searchQuery: string) => {
-      if (typeof window === 'undefined') return;
       const qs = serializeCoachListQuery(filters, searchQuery);
       const next = qs ? `${pathname}?${qs}` : pathname;
-      const current = `${window.location.pathname}${window.location.search}`;
-      if (current === next) return;
-      // History API avoids Next.js RSC soft-nav (_rsc) fighting client fetches.
-      window.history.replaceState(window.history.state, '', next);
+      saveCoachesListUrl(next);
+
+      if (typeof window !== 'undefined') {
+        const current = `${window.location.pathname}${window.location.search}`;
+        if (current === next) return;
+      }
+
+      // Keep Next.js history in sync so browser Back restores filters.
+      router.replace(next, { scroll: false });
     },
-    [pathname]
+    [pathname, router]
   );
 
   // Debounce search typing

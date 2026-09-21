@@ -10,12 +10,20 @@ import { openPrimaryStore } from '@/components/coaches/app-download-buttons';
 import type { Coach } from '@/lib/api';
 import { resolveImageUrl } from '@/lib/api';
 import { getCoachPath } from '@/lib/coach-slug';
+import { saveCoachesListUrl } from '@/lib/coaches-list-url';
 import { cn } from '@/lib/utils';
 import { CoachName } from '@/components/coaches/coach-name';
 
 interface CoachListCardProps {
   coach: Coach;
   coaches?: Coach[];
+}
+
+function rememberListUrl() {
+  if (typeof window === 'undefined') return;
+  saveCoachesListUrl(
+    `${window.location.pathname}${window.location.search}` || '/coaches'
+  );
 }
 
 export function CoachListCard({ coach, coaches = [] }: CoachListCardProps) {
@@ -27,15 +35,20 @@ export function CoachListCard({ coach, coaches = [] }: CoachListCardProps) {
   const snippet =
     bio && bio.length > 140 ? `${bio.slice(0, 140).trim()}…` : bio;
 
+  const goToDetails = () => {
+    rememberListUrl();
+    router.push(detailsHref);
+  };
+
   return (
     <article
       role="link"
       tabIndex={0}
-      onClick={() => router.push(detailsHref)}
+      onClick={goToDetails}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          router.push(detailsHref);
+          goToDetails();
         }
       }}
       className="cursor-pointer rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
@@ -88,7 +101,10 @@ export function CoachListCard({ coach, coaches = [] }: CoachListCardProps) {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Link
           href={detailsHref}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            rememberListUrl();
+          }}
           className={cn(buttonVariants({ variant: 'secondary' }), 'w-full')}
         >
           {t.seeDetails}

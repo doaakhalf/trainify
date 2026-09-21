@@ -4,6 +4,7 @@ import { SiteHeader } from '@/components/layout/site-header';
 import { CoachesDirectory } from '@/components/coaches/coaches-directory';
 import {
   parseCoachListQuery,
+  serializeCoachListQuery,
   type CoachFiltersState,
 } from '@/lib/coach-list-query';
 import { getActiveCoachesPage, type CoachesListParams } from '@/lib/api';
@@ -60,6 +61,7 @@ type CoachesPageProps = {
 export default async function CoachesPage({ searchParams }: CoachesPageProps) {
   const sp = await searchParams;
   const { filters, search } = parseCoachListQuery(sp);
+  const listKey = serializeCoachListQuery(filters, search) || 'all';
 
   const firstPage = await getActiveCoachesPage({
     page: 1,
@@ -71,6 +73,7 @@ export default async function CoachesPage({ searchParams }: CoachesPageProps) {
     <main>
       <SiteHeader />
       <CoachesDirectory
+        key={listKey}
         initialCoaches={firstPage.coaches}
         initialHasMore={firstPage.hasMore}
         initialFilters={filters}
