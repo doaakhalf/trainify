@@ -2,7 +2,11 @@ import type { Metadata } from 'next';
 import { content } from '@/content/ar';
 import { SiteHeader } from '@/components/layout/site-header';
 import { CoachesDirectory } from '@/components/coaches/coaches-directory';
-import { getActiveCoachesPage } from '@/lib/api';
+import {
+  parseCoachListQuery,
+  type CoachFiltersState,
+} from '@/lib/coach-list-query';
+import { getActiveCoachesPage, type CoachesListParams } from '@/lib/api';
 import { Footer } from '@/components/sections/footer';
 
 export const dynamic = 'force-dynamic';
@@ -20,12 +24,47 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function CoachesPage() {
-  // Same as ProMax GuestCoachesScreen: first page only
+function parseOptionalNumber(value: string): number | undefined {
+  if (!value.trim()) return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function filtersToApiParams(
+  filters: CoachFiltersState,
+  searchQuery = ''
+): CoachesListParams {
+  const params: CoachesListParams = {};
+  if (filters.gender) params.gender = filters.gender;
+
+  const query = searchQuery.trim();
+  if (query) params.search = query;
+
+  const minPrice = parseOptionalNumber(filters.minPrice);
+  const maxPrice = parseOptionalNumber(filters.maxPrice);
+  const minExp = parseOptionalNumber(filters.minExperience);
+  const maxExp = parseOptionalNumber(filters.maxExperience);
+
+  if (minPrice != null) params.minPrice = minPrice;
+  if (maxPrice != null) params.maxPrice = maxPrice;
+  if (minExp != null) params.minYearsOfExperience = minExp;
+  if (maxExp != null) params.maxYearsOfExperience = maxExp;
+
+  return params;
+}
+
+type CoachesPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function CoachesPage({ searchParams }: CoachesPageProps) {
+  const sp = await searchParams;
+  const { filters, search } = parseCoachListQuery(sp);
+
   const firstPage = await getActiveCoachesPage({
-    status: 'active',
     page: 1,
     limit: 10,
+    ...filtersToApiParams(filters, search),
   });
 
   return (
@@ -34,6 +73,8 @@ export default async function CoachesPage() {
       <CoachesDirectory
         initialCoaches={firstPage.coaches}
         initialHasMore={firstPage.hasMore}
+        initialFilters={filters}
+        initialSearch={search}
         pageSize={10}
       />
       <Footer />

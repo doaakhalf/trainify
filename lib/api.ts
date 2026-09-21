@@ -157,7 +157,6 @@ export async function getActiveCoachesPage(
 
   try {
     const searchParams = new URLSearchParams();
-    searchParams.set('status', params.status ?? 'active');
     searchParams.set('page', String(page));
     searchParams.set('limit', String(limit));
 
@@ -176,7 +175,7 @@ export async function getActiveCoachesPage(
     const timeoutId = setTimeout(() => controller.abort(), 8000);
 
     const response = await fetch(
-      `${API_BASE}/api/coaches?${searchParams.toString()}`,
+      `${API_BASE}/api/coaches?status=active&${searchParams.toString()}`,
       {
         cache: 'no-store',
         signal: controller.signal,

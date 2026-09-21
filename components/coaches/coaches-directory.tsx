@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { ArrowRight, Search, SlidersHorizontal } from 'lucide-react';
 import { content } from '@/content/ar';
 import {
@@ -9,6 +10,7 @@ import {
   defaultCoachFilters,
   type CoachFiltersState,
 } from '@/components/coaches/coach-filters';
+import { serializeCoachListQuery } from '@/lib/coach-list-query';
 import { CoachListCard } from '@/components/coaches/coach-list-card';
 import {
   getActiveCoachesPage,
@@ -19,6 +21,8 @@ import {
 interface CoachesDirectoryProps {
   initialCoaches: Coach[];
   initialHasMore?: boolean;
+  initialFilters?: CoachFiltersState;
+  initialSearch?: string;
   pageSize?: number;
 }
 
@@ -54,15 +58,20 @@ function filtersToApiParams(
 export function CoachesDirectory({
   initialCoaches,
   initialHasMore = false,
+  initialFilters = defaultCoachFilters,
+  initialSearch = '',
   pageSize = 10,
 }: CoachesDirectoryProps) {
   const t = content.coachesPage;
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [search, setSearch] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [draftFilters, setDraftFilters] =
-    useState<CoachFiltersState>(defaultCoachFilters);
+    useState<CoachFiltersState>(initialFilters);
   const [appliedFilters, setAppliedFilters] =
-    useState<CoachFiltersState>(defaultCoachFilters);
+    useState<CoachFiltersState>(initialFilters);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const [coaches, setCoaches] = useState<Coach[]>(initialCoaches);
@@ -78,6 +87,20 @@ export function CoachesDirectory({
   const skipFirstQueryEffect = useRef(true);
   filtersRef.current = appliedFilters;
   searchRef.current = debouncedSearch;
+
+  const syncUrl = useCallback(
+    (filters: CoachFiltersState, searchQuery: string) => {
+      const qs = serializeCoachListQuery(filters, searchQuery);
+      const next = qs ? `${pathname}?${qs}` : pathname;
+      const current =
+        typeof window !== 'undefined'
+          ? `${window.location.pathname}${window.location.search}`
+          : '';
+      if (current === next) return;
+      router.replace(next, { scroll: false });
+    },
+    [pathname, router]
+  );
 
   // Debounce search typing
   useEffect(() => {
@@ -105,7 +128,6 @@ export function CoachesDirectory({
         }
 
         const result = await getActiveCoachesPage({
-          status: 'active',
           page: pageNum,
           limit: pageSize,
           ...filtersToApiParams(filters, searchQuery),
@@ -138,14 +160,16 @@ export function CoachesDirectory({
     [pageSize]
   );
 
-  // Refetch when filters or search change
+  // Refetch + sync URL when filters or search change
   useEffect(() => {
     if (skipFirstQueryEffect.current) {
       skipFirstQueryEffect.current = false;
+      syncUrl(appliedFilters, debouncedSearch);
       return;
     }
+    syncUrl(appliedFilters, debouncedSearch);
     fetchPage(1, false, appliedFilters, debouncedSearch);
-  }, [appliedFilters, debouncedSearch, fetchPage]);
+  }, [appliedFilters, debouncedSearch, fetchPage, syncUrl]);
 
   const loadMore = useCallback(() => {
     if (!hasMore || loadingMore || loading || loadingLockRef.current) return;

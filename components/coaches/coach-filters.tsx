@@ -3,23 +3,17 @@
 import { content } from '@/content/ar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import {
+  type CoachFiltersState,
+} from '@/lib/coach-list-query';
 import { RotateCcw, User, X } from 'lucide-react';
 
-export interface CoachFiltersState {
-  gender: 'male' | 'female' | null;
-  minPrice: string;
-  maxPrice: string;
-  minExperience: string;
-  maxExperience: string;
-}
-
-export const defaultCoachFilters: CoachFiltersState = {
-  gender: null,
-  minPrice: '',
-  maxPrice: '',
-  minExperience: '',
-  maxExperience: '',
-};
+export type { CoachFiltersState } from '@/lib/coach-list-query';
+export {
+  defaultCoachFilters,
+  parseCoachListQuery,
+  serializeCoachListQuery,
+} from '@/lib/coach-list-query';
 
 interface CoachFiltersProps {
   value: CoachFiltersState;
