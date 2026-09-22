@@ -90,8 +90,8 @@ export function CoachListCard({ coach, coaches = [] }: CoachListCardProps) {
             </h3>
             <button
               type="button"
-              aria-label={copied ? t.shareCopied : t.copyLink}
-              title={copied ? t.shareCopied : t.copyLink}
+              aria-label={copied ? t.shareCopied : t.shareProfile}
+              title={copied ? t.shareCopied : t.shareProfile}
               onClick={copyCoachLink}
               className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
             >
