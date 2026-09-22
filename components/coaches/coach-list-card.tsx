@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Calendar, Star } from 'lucide-react';
+import { useState, type MouseEvent } from 'react';
+import { Calendar, Check, Copy, Star } from 'lucide-react';
 import { content } from '@/content/ar';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { openPrimaryStore } from '@/components/coaches/app-download-buttons';
@@ -26,10 +27,21 @@ function rememberListUrl() {
   );
 }
 
+function coachShareUrl(
+  coach: Coach,
+  detailsHref: string
+): string {
+  const share = coach.shareProfileUrl?.trim();
+  if (share?.startsWith('http://') || share?.startsWith('https://')) return share;
+  if (share?.startsWith('/')) return `${window.location.origin}${share}`;
+  return `${window.location.origin}${detailsHref}`;
+}
+
 export function CoachListCard({ coach, coaches = [] }: CoachListCardProps) {
   const router = useRouter();
   const t = content.coachesPage;
   const detailsHref = getCoachPath(coach, coaches);
+  const [copied, setCopied] = useState(false);
   const image = resolveImageUrl(coach.profileImage);
   const bio = coach.introduction?.trim();
   const snippet =
@@ -40,12 +52,25 @@ export function CoachListCard({ coach, coaches = [] }: CoachListCardProps) {
     router.push(detailsHref);
   };
 
+  const copyCoachLink = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    event.preventDefault();
+    try {
+      await navigator.clipboard.writeText(coachShareUrl(coach, detailsHref));
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   return (
     <article
       role="link"
       tabIndex={0}
       onClick={goToDetails}
       onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           goToDetails();
@@ -59,9 +84,24 @@ export function CoachListCard({ coach, coaches = [] }: CoachListCardProps) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-lg font-bold text-gray-900">
-            <CoachName name={coach.name} />
-          </h3>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <h3 className="truncate text-lg font-bold text-gray-900">
+              <CoachName name={coach.name} />
+            </h3>
+            <button
+              type="button"
+              aria-label={copied ? t.shareCopied : t.copyLink}
+              title={copied ? t.shareCopied : t.copyLink}
+              onClick={copyCoachLink}
+              className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+            >
+              {copied ? (
+                <Check className="h-3.5 w-3.5 text-green-600" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
+            </button>
+          </div>
           <p className="mt-1 line-clamp-2 text-sm text-gray-600">
             {coach.headline || 'مدرب معتمد'}
           </p>
