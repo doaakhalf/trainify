@@ -8,7 +8,6 @@ import { AppScreenshots } from '@/components/sections/app-screenshots';
 import { Trust } from '@/components/sections/trust';
 import { WhyTrainifyComparison } from '@/components/sections/why-trainify-comparison';
 import { HowItWorks } from '@/components/sections/how-it-works';
-import { ForCoaches } from '@/components/sections/for-coaches';
 import { Testimonials } from '@/components/sections/testimonials';
 import { FAQ } from '@/components/sections/faq';
 import { FinalCTA } from '@/components/sections/final-cta';
@@ -30,7 +29,6 @@ export default function HomeClient({ coaches }: HomeClientProps) {
       <Trust />
       <WhyTrainifyComparison />
       <HowItWorks />
-      <ForCoaches />
       <Testimonials />
       <FAQ />
       <FinalCTA />

@@ -1,9 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { UserPlus, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { UserPlus } from 'lucide-react';
 
 export function CoachCTABanner() {
   return (
@@ -34,17 +32,6 @@ export function CoachCTABanner() {
                 </p>
               </div>
             </div>
-
-            {/* CTA Button */}
-            <Link href="/coach-signup" className="w-full lg:w-auto">
-              <Button
-                size="lg"
-                className="bg-white text-orange-600 hover:bg-orange-50 hover:scale-105 transition-all shadow-lg w-full lg:w-auto group"
-              >
-                انضم كمدرب
-                <ArrowLeft className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
           </div>
         </motion.div>
       </div>

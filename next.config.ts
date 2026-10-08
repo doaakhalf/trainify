@@ -2,13 +2,6 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  async redirects() {
-    return [
-      { source: '/coach-signup', destination: '/', permanent: false },
-      { source: '/coach-signup/:path*', destination: '/', permanent: false },
-    ];
-  },
-  
   images: {
     unoptimized: true,
     formats: ['image/avif', 'image/webp'],
