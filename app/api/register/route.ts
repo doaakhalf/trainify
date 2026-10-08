@@ -4,7 +4,14 @@ import { getClientApiHeaders } from '@/lib/client-api-key';
 const MAX_REGISTER_FILE_BYTES = 10 * 1024 * 1024;
 const MAX_REGISTER_REQUEST_BYTES = 25 * 1024 * 1024;
 
-export async function POST(request: NextRequest) {
+export async function POST() {
+  return NextResponse.json(
+    { success: false, message: 'Coach registration from the website is closed.' },
+    { status: 403 }
+  );
+}
+
+export async function POST_DISABLED(request: NextRequest) {
   try {
     // Get the FormData from the request
     const formData = await request.formData();

@@ -17,11 +17,6 @@ const navItems = [
     labelKey: 'coaches' as const,
     resolveHref: () => getCoachesListUrl('/coaches'),
   },
-  {
-    href: '/coach-signup',
-    labelKey: 'forCoaches' as const,
-    resolveHref: () => '/coach-signup',
-  },
   { href: '/privacy', labelKey: 'privacy' as const, resolveHref: () => '/privacy' },
   { href: '/terms', labelKey: 'terms' as const, resolveHref: () => '/terms' },
 ];
